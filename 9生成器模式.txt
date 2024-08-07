@@ -1,0 +1,144 @@
+#include "pt4.h"
+#include <algorithm>
+using namespace std;
+
+class Builder
+{
+public:
+    virtual void BuildStart() {}
+    virtual void BuildPartA() {}
+    virtual void BuildPartB() {}
+    virtual void BuildPartC() {}
+    virtual string GetResult() = 0;
+};
+
+// Implement the ConcreteBuilder1
+//   and ConcreteBuilder2 descendant classes
+
+class ConcreteBuilder1 : public Builder
+{
+	string product="";
+public:
+    virtual void BuildStart();
+    virtual void BuildPartA();
+    virtual void BuildPartB();
+    virtual void BuildPartC(); 
+    virtual string GetResult();
+    
+};
+
+class ConcreteBuilder2 : public Builder
+{
+	string product="";
+public:
+    virtual void BuildStart();
+    virtual void BuildPartA();
+    virtual void BuildPartB();
+    virtual void BuildPartC(); 
+    virtual string GetResult();
+    
+};
+
+void ConcreteBuilder1::BuildStart()
+{
+	this->product="";
+}
+
+void ConcreteBuilder2::BuildStart()
+{
+	this->product="";
+}
+
+void ConcreteBuilder1::BuildPartA()
+{
+	product+="-1-";
+}
+
+void ConcreteBuilder1::BuildPartB()
+{
+	product+="-2-";
+}
+
+void ConcreteBuilder1::BuildPartC()
+{
+	product+="-3-";
+}
+
+void ConcreteBuilder2::BuildPartA()
+{
+	product+="=*=";
+}
+
+void ConcreteBuilder2::BuildPartB()
+{
+	product+="=**=";
+}
+
+void ConcreteBuilder2::BuildPartC()
+{
+	product+="=***=";
+}
+
+string ConcreteBuilder1::GetResult()
+{
+	return this->product;
+}
+
+string ConcreteBuilder2::GetResult()
+{
+	return this->product;
+}
+
+
+class Director
+{
+    Builder* b;
+public:
+    Director(Builder* b);
+    string GetResult();
+    void Construct(string templat);
+};
+
+Director::Director(Builder* b)
+{
+    this->b = b;
+}
+string Director::GetResult()
+{
+    return b->GetResult();
+}
+void Director::Construct(string templat)
+{
+    // Implement the method
+    b->BuildStart();
+    for(int i=0;i<templat.length();i++)
+    {
+    	if(templat[i]=='A')
+    	    b->BuildPartA();
+    	else if(templat[i]=='B')
+    	    b->BuildPartB();
+    	else if(templat[i]=='C')
+    	    b->BuildPartC();
+    	else
+    	    ;	   
+	}
+    
+}
+
+void Solve()
+{
+    Task("OOP1Creat9");
+    int N=5;
+    for(int i=0;i<N;i++)
+    {
+		string templat;
+    	pt >> templat;
+    	Director D1(new ConcreteBuilder1);
+    	Director D2(new ConcreteBuilder2);
+    	D1.Construct(templat);
+    	D2.Construct(templat);
+        pt << D1.GetResult();
+        pt << D2.GetResult();  	
+	}
+
+}

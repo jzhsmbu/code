@@ -1,0 +1,155 @@
+#include "pt4.h"
+#include <algorithm>
+using namespace std;
+
+class Strategy
+{
+public:
+    virtual string Algorithm(string info) = 0;
+};
+
+// Implement the ConcreteStrategyA, ConcreteStrategyB
+//   and ConcreteStrategyC descendant classes
+
+class ConcreteStrategyA : public Strategy
+{
+	string info;
+public:
+	ConcreteStrategyA(){}
+	virtual string Algorithm(string info);
+};
+
+class ConcreteStrategyB : public Strategy
+{
+	string info;
+public:
+	ConcreteStrategyB(){}
+	virtual string Algorithm(string info);
+};
+
+class ConcreteStrategyC : public Strategy
+{
+	string info;
+public:
+	ConcreteStrategyC(){}
+	virtual string Algorithm(string info);
+};
+
+string ConcreteStrategyA::Algorithm(string info)
+{
+	string s1="A";
+	return info+s1;
+}
+
+string ConcreteStrategyB::Algorithm(string info)
+{
+	string s1="B";
+	return info+s1;
+}
+
+string ConcreteStrategyC::Algorithm(string info)
+{
+	string s1="C";
+	return info+s1;
+}
+
+
+class Context
+{
+protected:
+    Strategy* st;
+public:
+    void SetStrategy(Strategy* st);
+    virtual string RunAlgorithm() = 0;
+    ~Context();
+};
+
+void Context::SetStrategy(Strategy* st)
+{
+    delete this->st;
+    this->st = st;
+}
+Context::~Context()
+{
+    delete this->st;
+}
+
+// Implement the Context1 and Context2 descendant classes
+
+class Context1 : public Context
+{	
+    
+public:	
+	Context1();
+	virtual string RunAlgorithm();
+};
+
+Context1::Context1()
+{
+	ConcreteStrategyA* A=new ConcreteStrategyA;
+	this->st=A;
+}
+
+string Context1::RunAlgorithm()
+{
+	string info="1";
+	return st->Algorithm(info);
+}
+
+class Context2 : public Context
+{	
+    
+public:	
+	Context2();
+	virtual string RunAlgorithm();
+};
+
+Context2::Context2()
+{
+	ConcreteStrategyB* B=new ConcreteStrategyB;
+	this->st = B;
+}
+
+string Context2::RunAlgorithm()
+{
+	string info="2";
+	return st->Algorithm(info);
+}
+
+
+void Solve()
+{
+    Task("OOP3Behav3");
+    string s;
+    pt >> s;
+    int N=s.length();
+    Context** ctxt = new Context * [N];
+    for(int i=0;i<N;i++)
+    {
+    	
+		if(s[i]=='1')
+    	{
+    		ctxt[i]=new Context1();
+		}
+		else
+		{
+			ctxt[i]=new Context2();
+		}
+	}
+	
+	int K;
+	int ind;
+	pt >> K;
+	for(int i=0;i<K;i++)
+	{
+		pt >> ind;
+		ctxt[ind]->SetStrategy(new ConcreteStrategyC);		
+	}
+	
+    for(int i=0;i<N;i++)
+	{		
+		//Show(ctxt[i]->RunAlgorithm());
+		pt << ctxt[i]->RunAlgorithm();
+	}
+
+}

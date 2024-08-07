@@ -1,0 +1,238 @@
+#include "pt4.h"
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+
+class AbstractGraphic
+{
+public:
+    virtual AbstractGraphic* Clone() = 0;
+    virtual void ChangeLocation(int x1, int y1, int x2, int y2) = 0;
+    virtual string Draw() = 0;
+};
+
+// Implement the Ellip, Line and Rect descendant classes
+
+class Ellip : public AbstractGraphic
+{
+    int x1=0 , y1=0 , x2=0 , y2=0; 
+public:  
+	virtual AbstractGraphic* Clone(){
+		return new Ellip(*this);
+	}
+	virtual void ChangeLocation(int x1, int y1, int x2, int y2);
+	virtual string Draw();	
+};
+
+class Line : public AbstractGraphic
+{
+    int x1=0 , y1=0 , x2=0 , y2=0; 
+public:  
+	virtual AbstractGraphic* Clone(){
+		return new Line(*this);
+	}
+	virtual void ChangeLocation(int x1, int y1, int x2, int y2);
+	virtual string Draw();	
+};
+
+class Rect : public AbstractGraphic
+{
+    int x1=0 , y1=0 , x2=0 , y2=0; 
+public:  
+	virtual AbstractGraphic* Clone(){
+		return new Rect(*this);
+	}
+	virtual void ChangeLocation(int x1, int y1, int x2, int y2);
+	virtual string Draw();	
+};
+
+void Ellip::ChangeLocation(int x1, int y1, int x2, int y2)
+{
+	this->x1=x1;
+	this->y1=y1;
+	this->x2=x2;
+	this->y2=y2;
+}
+
+string Ellip::Draw()
+{
+    string s1="Ellip", s2="(", s3=",", s4=")";
+	return s1+s2+to_string(this->x1)+s3+to_string(this->y1)+
+	s3+to_string(this->x2)+s3+to_string(this->y2)+s4;
+}
+
+void Line::ChangeLocation(int x1, int y1, int x2, int y2)
+{
+	this->x1=x1;
+	this->y1=y1;
+	this->x2=x2;
+	this->y2=y2;
+}
+
+string Line::Draw()
+{
+    string s1="Line", s2="(", s3=",", s4=")";
+	return s1+s2+to_string(this->x1)+s3+to_string(this->y1)+
+	s3+to_string(this->x2)+s3+to_string(this->y2)+s4;
+}
+
+void Rect::ChangeLocation(int x1, int y1, int x2, int y2)
+{
+	this->x1=x1;
+	this->y1=y1;
+	this->x2=x2;
+	this->y2=y2;
+}
+
+string Rect::Draw()
+{
+    string s1="Rect", s2="(", s3=",", s4=")";
+	return s1+s2+to_string(this->x1)+s3+to_string(this->y1)+
+	s3+to_string(this->x2)+s3+to_string(this->y2)+s4;
+}
+
+
+class GraphEditor
+{
+    // Add required fields
+    AbstractGraphic* p1;
+    AbstractGraphic* p2;
+    AbstractGraphic* p;
+    vector<AbstractGraphic*> V;
+    int x1=0 , y1=0 , x2=0 , y2=0;
+    int np;
+    
+public:
+    GraphEditor(AbstractGraphic* p1, AbstractGraphic* p2);
+    ~GraphEditor();
+    void AddGraphic(int np, int x1, int y1, int x2, int y2);
+    string DrawAll();
+};
+
+GraphEditor::GraphEditor(AbstractGraphic* p1, AbstractGraphic* p2)
+{
+    // Implement the constructor
+    this->p1=p1;
+    this->p2=p2;
+}
+GraphEditor::~GraphEditor()
+{
+    // Implement the destructor
+    delete p1;
+    delete p2;
+    delete p;
+}
+void GraphEditor::AddGraphic(int np, int x1, int y1, int x2, int y2)
+{
+    // Implement the method
+    if(np==1)
+     {
+    	 AbstractGraphic* p = p1->Clone();
+    	 p->ChangeLocation(x1, y1, x2, y2);
+    	 V.push_back(p);
+	 }
+	if(np==2)
+	 {
+	 	 AbstractGraphic* p = p2->Clone();
+	 	 p->ChangeLocation(x1, y1, x2, y2);
+	 	 V.push_back(p);
+	 }
+    
+}
+string GraphEditor::DrawAll()
+{
+    string str="";
+    for(auto e : V)
+    {
+    	str=str+(e->Draw());
+    	str+=" ";
+	}
+	return str.substr(0, str.length() - 1);
+           
+    // Remove the previous statement and implement the method
+};
+
+void Solve()
+{
+    Task("OOP1Creat8");
+    string P;
+    pt >> P;
+    int N;
+    pt >> N;
+    int np,x1,y1,x2,y2;
+       
+	if(P=="LR")
+ {	
+	GraphEditor G(new Line,new Rect);
+	for(int i=0;i<N;i++)
+    {
+    	pt >> np >> x1 >> y1 >> x2 >> y2;
+    	G.AddGraphic(np, x1, y1, x2, y2);  		
+	}	
+
+    pt << G.DrawAll();
+ }
+ 
+ else if(P=="RL")
+ {	
+	GraphEditor G(new Rect,new Line);
+	for(int i=0;i<N;i++)
+    {
+    	pt >> np >> x1 >> y1 >> x2 >> y2;
+    	G.AddGraphic(np, x1, y1, x2, y2);  		
+	}	
+
+    pt << G.DrawAll();
+ }
+ 
+ else if(P=="LE")
+ {	
+	GraphEditor G(new Line,new Ellip);
+	for(int i=0;i<N;i++)
+    {
+    	pt >> np >> x1 >> y1 >> x2 >> y2;
+    	G.AddGraphic(np, x1, y1, x2, y2);  		
+	}	
+
+    pt << G.DrawAll();
+ }
+ 
+ else if(P=="EL")
+ {	
+	GraphEditor G(new Ellip,new Line);
+	for(int i=0;i<N;i++)
+    {
+    	pt >> np >> x1 >> y1 >> x2 >> y2;
+    	G.AddGraphic(np, x1, y1, x2, y2);  		
+	}	
+
+    pt << G.DrawAll();
+ }
+ 
+ else if(P=="RE")
+ {	
+	GraphEditor G(new Rect,new Ellip);
+	for(int i=0;i<N;i++)
+    {
+    	pt >> np >> x1 >> y1 >> x2 >> y2;
+    	G.AddGraphic(np, x1, y1, x2, y2);  		
+	}	
+
+    pt << G.DrawAll();
+ }
+ 
+ else
+ {	
+	GraphEditor G(new Ellip,new Rect);
+	for(int i=0;i<N;i++)
+    {
+    	pt >> np >> x1 >> y1 >> x2 >> y2;
+    	G.AddGraphic(np, x1, y1, x2, y2);  		
+	}	
+
+    pt << G.DrawAll();
+ }
+
+ 		
+}

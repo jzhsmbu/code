@@ -1,0 +1,206 @@
+#include "pt4.h"
+using namespace std;
+
+class AbstractComparable
+{
+public:
+    virtual int CompareTo(AbstractComparable* other) = 0;
+
+    // Implement the IndexMax, LastIndexMax, IndexMin
+    //   and LastIndexMin static methods
+    static int IndexMax(vector<AbstractComparable*> V);
+    static int LastIndexMax(vector<AbstractComparable*> V);
+    static int IndexMin(vector<AbstractComparable*> V);
+    static int LastIndexMin(vector<AbstractComparable*> V);
+};
+
+int AbstractComparable::IndexMax(vector<AbstractComparable*> V)
+{
+	int num=0;
+	auto max=V[0];
+	for(int i=0;i<V.size();i++)
+	{
+		if(V[i]->CompareTo(max)>0)
+		{
+			num=i;
+			max=V[i];
+		}
+	}
+	return num;
+}
+
+int AbstractComparable::LastIndexMax(vector<AbstractComparable*> V)
+{
+	int num=0;
+	auto max=V[0];
+	for(int i=0;i<V.size();i++)
+	{
+		if(V[i]->CompareTo(max)>=0)
+		{
+			num=i;
+			max=V[i];
+		}
+	}
+	return num;
+}
+
+int AbstractComparable::IndexMin(vector<AbstractComparable*> V)
+{
+	int num=0;
+	auto min=V[0];
+	for(int i=0;i<V.size();i++)
+	{
+		if(V[i]->CompareTo(min)<0)
+		{
+			num=i;
+			min=V[i];
+		}
+	}
+	return num;
+}
+
+int AbstractComparable::LastIndexMin(vector<AbstractComparable*> V)
+{
+	int num=0;
+	auto min=V[0];
+	for(int i=0;i<V.size();i++)
+	{
+		if(V[i]->CompareTo(min)<=0)
+		{
+			num=i;
+			min=V[i];
+		}
+	}
+	return num;
+}
+
+// Implement the NumberComparable, LengthComparable
+//   and TextComparable descendant classes
+
+class NumberComparable:public AbstractComparable
+{
+	string s;
+	int key;
+public:
+	NumberComparable(string s);
+	virtual int CompareTo(AbstractComparable* other);	
+};
+
+NumberComparable::NumberComparable(string s)
+{
+	int k=0;
+	if(s[0]=='-')
+		   k++;
+	for(int i=0;i<s.length();i++)
+	{
+		if(s[i]>='0' && s[i]<='9')
+		   k++;
+	}
+	if(k==s.length())
+	  key=atoi(s.c_str());
+	else
+	  key=0;	
+}
+
+int NumberComparable::CompareTo(AbstractComparable* other)
+{
+	NumberComparable* cmp = dynamic_cast<NumberComparable*>(other);
+    if (this->key > cmp->key)
+        return 1;
+    else if (this->key < cmp->key)
+        return -1;
+    else
+        return 0;
+
+}
+
+class LengthComparable : public AbstractComparable
+{
+	string s;
+	int key;
+public:
+	LengthComparable(string s);
+	virtual int CompareTo(AbstractComparable* other);	
+	
+};
+
+LengthComparable::LengthComparable(string s)
+{
+	key=s.size();
+}
+
+int LengthComparable::CompareTo(AbstractComparable* other)
+{
+	LengthComparable* cmp = dynamic_cast<LengthComparable*>(other);
+    if (this->key > cmp->key)
+        return 1;
+    else if (this->key < cmp->key)
+        return -1;
+    else
+        return 0;
+	
+}
+
+class TextComparable : public AbstractComparable
+{
+	string s;
+	string key;
+public:
+	TextComparable(string s);
+	virtual int CompareTo(AbstractComparable* other);	
+};
+
+TextComparable::TextComparable(string s)
+{
+	key=s;
+}
+
+int TextComparable::CompareTo(AbstractComparable* other)
+{
+	 TextComparable* cmp = dynamic_cast<TextComparable*>(other);
+    if (this->key > cmp->key)
+        return 1;
+    else if (this->key < cmp->key)
+        return -1;
+    else
+        return 0;	
+}
+
+
+void Solve()
+{
+    Task("OOP3Behav6");
+    int N;
+    int K;
+    pt >> N >> K;
+    string num;
+    string object;
+    for(int i=0;i<K;i++)
+    {
+    	pt >> num;
+    	vector <AbstractComparable*> V;
+    	for (int j = 0; j < N; j++)
+    	{
+    		AbstractComparable* tmp;
+			pt >> object;
+			switch(num[0])
+			{
+				case 'N':
+				    tmp = new NumberComparable(object);	
+			 	        break;
+				case 'L':
+				    tmp = new LengthComparable(object);
+						break;
+				case 'T':			
+				    tmp = new TextComparable(object);
+				        break;    
+			}
+			V.push_back(tmp);
+	
+		}
+		
+		pt << V[0]->IndexMax(V) << V[0]->LastIndexMax(V)
+		<< V[0]->IndexMin(V) << V[0]->LastIndexMin(V);		
+	}
+
+}

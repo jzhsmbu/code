@@ -1,0 +1,149 @@
+#include "pt4.h"
+#include<algorithm>
+using namespace std;
+
+class Flyweight
+{
+public:
+    virtual char Show(bool state) = 0;
+};
+
+// Implement the ConcreteFlyweight
+//   and UnsharedConcreteFlyweight descendant classes
+
+class ConcreteFlyweight :public Flyweight 
+{
+public:
+    ConcreteFlyweight() {};
+    virtual char Show(bool state);
+};
+
+char ConcreteFlyweight::Show(bool state) 
+{
+    if (state==1)
+        return 'A';
+    else
+        return 'a';
+}
+
+class UnsharedConcreteFlyweight :public Flyweight 
+{
+    char inf;
+public:
+    UnsharedConcreteFlyweight(char inf);
+    virtual char Show(bool state);
+};
+
+UnsharedConcreteFlyweight::UnsharedConcreteFlyweight(char inf) 
+{
+    this->inf = inf;
+}
+
+char UnsharedConcreteFlyweight::Show(bool state) 
+{
+    if (state==1)
+        return toupper(inf);
+    else
+        return tolower(inf);
+}
+
+// Implement the FlyweightFactory and Client classes
+
+class FlyweightFactory 
+{
+    ConcreteFlyweight* cf;
+    int ncount;
+    Flyweight* fw;
+public:
+    FlyweightFactory();
+    Flyweight* CreateFlyweight(char inf);
+    int GetCount();
+    void DeleteFlyweight(Flyweight* fw);
+};
+
+FlyweightFactory::FlyweightFactory() 
+{
+    cf = nullptr;
+    ncount = 0;
+}
+
+Flyweight* FlyweightFactory::CreateFlyweight(char inf) 
+{
+    if (inf != 'A' && inf != 'a') 
+	{
+        ncount++;
+        return new UnsharedConcreteFlyweight(inf);
+    }
+    
+    else 
+	{
+        if (cf == NULL) 
+		{
+            ncount++;
+            cf = new ConcreteFlyweight();
+            return cf;
+        }
+        else 
+            return cf;
+    }
+}
+int FlyweightFactory::GetCount() 
+{
+    return ncount;
+}
+
+void FlyweightFactory::DeleteFlyweight(Flyweight* fw) 
+{
+    delete fw;
+}
+
+class Client 
+{
+    FlyweightFactory f;
+    vector<Flyweight*> fw;
+public:
+    Client(){};
+    void MakeFlyweight(string inf);
+    string ShowFlyweights(bool state);
+    int GetFlyweightCount();
+};
+
+void Client::MakeFlyweight(string inf) 
+{
+    fw.clear();
+	for (int i = 0; i < inf.length(); i++)
+	{
+        fw.push_back(f.CreateFlyweight(inf[i]));
+    }
+}
+
+string Client::ShowFlyweights(bool state) 
+{
+    string str = "";
+    for(auto i : fw) 
+	{
+        str += i->Show(state);
+    }
+    return str;
+}
+
+int Client::GetFlyweightCount() 
+{
+    return f.GetCount();
+}
+
+
+void Solve()
+{
+    Task("OOP2Struc11");
+    Client* C = new Client;
+    string s;
+    int N=5;
+    for(int i=0;i<N;i++)
+    {
+    	pt >> s;
+    	C->MakeFlyweight(s);
+        pt << C->ShowFlyweights(true) << C->ShowFlyweights(false) << C->GetFlyweightCount();     
+    }
+    
+}

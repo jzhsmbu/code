@@ -1,0 +1,154 @@
+#include "pt4.h"
+using namespace std;
+
+class TextView
+{
+    // Do not change the implementation of the class
+    int x = 0, y = 0;
+    int width = 1, height = 1;
+public:
+    void GetOrigin(int& x, int& y);
+    void SetOrigin(int x, int y);
+    void GetSize(int& width, int& height);
+    void SetSize(int width, int height);
+};
+
+void TextView::GetOrigin(int& x, int& y)
+{
+    x = this->x;
+    y = this->y;
+}
+void TextView::SetOrigin(int x, int y)
+{
+    this->x = x;
+    this->y = y;
+}
+void TextView::GetSize(int& width, int& height)
+{
+    width = this->width;
+    height = this->height;
+}
+void TextView::SetSize(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+}
+
+class Shape
+{
+public:
+    virtual string GetInfo() = 0;
+    virtual void MoveBy(int a, int b) = 0;
+};
+
+// Implement the RectShape and TextShape descendant classes
+
+class RectShape : public Shape
+{
+	int x1=0 , y1=0 , x2=0 , y2=0; 
+public:  
+     RectShape(int x1, int y1, int x2, int y2);
+     virtual void MoveBy(int a, int b);
+	 virtual string GetInfo();	
+};
+
+RectShape::RectShape(int x1, int y1, int x2, int y2)
+{
+	this->x1=x1;
+	this->y1=y1;
+	this->x2=x2;
+	this->y2=y2;
+}
+
+void RectShape::MoveBy(int a ,int b)
+{
+	x1=x1+a;
+	y1=y1+b;
+	x2=x2+a;
+	y2=y2+b;
+}
+
+string RectShape::GetInfo()
+{
+    string s1="R", s2="(", s3=",", s4=")";
+	return s1+s2+to_string(this->x1)+s3+to_string(this->y1)+s4+
+	s2+to_string(this->x2)+s3+to_string(this->y2)+s4;
+}
+
+class TextShape : public Shape
+{
+	TextView* tview;
+public:
+	TextShape(TextView* tview, int x1, int y1, int x2, int y2);
+	virtual void MoveBy(int a, int b);
+	virtual string GetInfo();
+};
+
+
+TextShape::TextShape(TextView* tview,int x1, int y1, int x2, int y2)
+{
+	this->tview=tview;
+	this->tview->SetOrigin(x1,y1);
+	this->tview->SetSize(x2,y2);
+}
+
+void TextShape::MoveBy(int a ,int b)
+{
+    int x1, y1;
+    int x2, y2;
+    tview->GetOrigin(x1, y1);
+    tview->GetSize(x2, y2);
+	x1=x1+a;
+	y1=y1+b;
+	x2=x2+a;
+	y2=y2+b;
+	this->tview->SetOrigin(x1,y1);
+	this->tview->SetSize(x2,y2);
+}
+
+string TextShape::GetInfo()
+{
+    int x1, y1;
+    int x2, y2;
+    tview->GetOrigin(x1, y1);
+    tview->GetSize(x2, y2);
+    
+	string s1="T", s2="(", s3=",", s4=")";
+	return s1+s2+to_string(x1)+s3+to_string(y1)+s4+
+	s2+to_string(x2)+s3+to_string(y2)+s4;
+}
+
+
+void Solve()
+{
+    Task("OOP2Struc3");
+    int N;
+    pt >> N;
+    Shape** t = new Shape * [N];
+    for(int i=0;i<N;i++)
+    {
+    	char c;
+    	int x1,y1,x2,y2;
+    	pt >> c >> x1 >> y1 >> x2 >> y2;
+        if(c=='R')
+        {
+        	t[i] = new RectShape(x1, y1, x2, y2);
+		}
+		else
+		{
+			t[i] = new TextShape(new TextView, x1, y1, x2, y2);
+		}    	
+	}
+	
+	int A,B;
+	pt >> A >> B;
+	for(int i=0;i<N;i++)
+	{
+		t[i]->MoveBy(A,B);
+		//Show(t[i]->GetInfo());
+		pt << t[i]->GetInfo();
+		delete t[i];
+	}
+	delete[] t;
+    
+}
