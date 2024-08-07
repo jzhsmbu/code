@@ -1,0 +1,192 @@
+---
+title: "task10 - Цзян Чжэнхуа"
+output: html_document
+date: "2024-05-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## task10(Вариант13)
+
+```{r}
+setwd("C:\\Users\\lenovo\\Desktop\\时间序列分析\\tsa10")
+dat <- read.csv("brent.csv")
+dat[,1] <- as.Date(dat[,1],tryFormats = c("%Y-%m-%d", "%Y/%m/%d"),optional=T)
+head(dat)
+```
+
+```{r}
+n <- dim(dat)[1]
+startdate<-'2020-01-02'
+enddate<-'2020-05-22'
+(n.start<- which(dat[,1]==startdate))
+(n.end<- which(dat[,1]==enddate))
+
+nn<-n.end-n.start+1  
+int.dat <- dat[n.start:n.end,]
+Intervention.Time <- as.Date("2020-03-06")
+(iT <- which(int.dat[,1]==Intervention.Time ))
+
+before.int = int.dat[1:iT-1,2]
+acf(before.int)
+pacf(before.int)
+```
+
+Функции для интерференции моделей и расчета остатков.
+
+```{r}
+inter.sim <- function(n,u,ar,ma,iT,isPulse)
+{
+  p <- length(ar)
+  q <- length(ma)
+  vec <-1:n
+  if (isPulse)
+    interven=1*(seq(vec)==iT)
+  else
+    interven=1*(seq(vec)>=iT)
+  
+  inter <-stats::filter(interven,filter=ar,
+                        method='recursive', side=1)*  ma[1]
+  for (i in 2:q)
+  {  
+    if (isPulse)
+      interven.i <- 1*(seq(vec)==(iT+i-1))
+    else
+      interven.i <- 1*(seq(vec)>=(iT+i-1))
+    
+    inter.i <-stats::filter(interven.i,filter=ar,
+                            method='recursive', side=1)*  ma[i]
+    inter <- inter+inter.i
+  }    
+  return (inter+u*interven)
+}
+
+fn <- function(param,x,pp,qq,int.time,isPulse)
+{
+  nParam<- length(param)
+  u0 <- param[1]
+  ar <- param[2:(pp+1)]
+  ma <- param[(2+pp):nParam]
+  n <- length(x)
+  m <- mean(x[1:(int.time-1)])
+  interven <- inter.sim(n,u0,ar,ma,int.time,isPulse )+m
+  res <-sum((x - interven)^2)
+  return (res)
+}
+
+estimate.interven<- function(x,transfer,int.time,isPulse)
+{
+  pp<- transfer[1]
+  qq<- transfer[2]
+  t.order <- pp+qq+2
+  param <- rep(0.2,t.order)
+  res <- optim(param,fn,gr=NULL,x=x,pp = pp,qq ==qq,int.time= int.time, isPulse=isPulse, method="BFGS")
+  listres <- list(u=res$par[1],ar = res$par[2:(pp+1)],ma   =res$par[(2+pp):t.order])
+  return (listres)
+}
+```
+
+Из полученных результатов видно, что p=3 и q=3 являются наилучшими параметрами модели.
+
+```{r}
+isPulse<-FALSE
+
+for (p in 1:3) {
+  for (q in 1:5) {
+    res <- estimate.interven(int.dat[,2], c(p,q), iT, isPulse)
+    interven <- inter.sim(nn,res$u,res$ar,res$ma,iT,isPulse )
+    res <-sum((int.dat[,2] - interven)^2)
+    cat("p = ", p , "q = " , q)
+    cat(" res = ",res)
+    cat('\n')
+    }
+}
+
+res<-estimate.interven(int.dat[,2],c(3,3),iT,isPulse)
+u0<-res$u
+ar<-res$ar
+ma<-res$ma
+```
+
+Нарисуем полученную модель.
+
+```{r}
+library(TSA)
+matplot(interven,ylab='',main ='Intervention effect',
+        type='b',pch = 21,col = c("blue"),lwd = 2)
+```
+
+Уберем эффект интервенции и оригинальных данных.
+
+```{r}
+interven.deleted<-int.dat[,2] - interven
+matplot(interven.deleted,type = "b",pch = 21,col="blue",main = "Intervention deleted")
+```
+
+### Оценим bsts модель с трендом и сезонной компонентой.
+
+```{r}
+library(bsts)
+ss <- AddLocalLinearTrend(list(), dat[,2])
+ss <- AddSeasonal(ss, dat[,2], nseasons = 52)
+model1 <- bsts(dat[,2],
+               state.specification = ss,
+               niter = 1000)
+
+plot(model1)
+plot(model1, "components")
+```
+
+```{r}
+pred1 <- predict(model1, horizon = 10)
+plot(pred1, plot.original = 156)
+
+horizon <- 10
+plot.original <- 156
+original.series <- pred1$original.series
+inter.horizon <-plot.original+horizon 
+original.series <- tail(original.series, plot.original)
+
+original.date   <- tail(dat[,1], plot.original)
+(int.time <- which(original.date==Intervention.Time ))
+
+intr<-  inter.sim(inter.horizon,u0,ar,ma,int.time,isPulse= F)
+original.series <- original.series+head(intr,plot.original)
+
+n1 <- ncol(pred1$distribution)
+intr.forecast <- tail(intr,horizon)
+for (i in 1:n1)
+  pred1$distribution[,i]<- pred1$distribution[,i]+intr.forecast[i]
+
+interval.quantiles <- c(0.05,0.95)
+pred1$interval <- apply(pred1$distribution, 2, 
+                        quantile, interval.quantiles, na.rm = TRUE)
+
+ylim <- range(pred1$distribution, original.series, 
+              na.rm = TRUE)
+
+time <- index(original.series)
+deltat <- tail(diff(tail(time, 2)), 1)
+pred.time <- tail(time, 1) + (1:n1) * deltat
+
+median.color <- "blue"
+median.type <- 1
+median.width <- 3                        
+interval.type <- 3
+interval.width <- 3
+interval.color <- 'green'
+median <- pred1$median + intr.forecast
+median
+
+plot(time, original.series, type = "l",main='Initial claims forecasts', xlim = range(time, 
+                                                                                     pred.time, na.rm = TRUE), ylim = ylim)
+PlotDynamicDistribution(curves = pred1$distribution, 
+                        timestamps = pred.time, add =  plot.original, ylim = ylim)
+
+lines(pred.time, median, col = median.color, lty = median.type, lwd = median.width)
+
+```
+
+
