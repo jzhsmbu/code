@@ -1,0 +1,20 @@
+#include "pt4.h"
+using namespace std;
+
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+void Solve()
+{
+    Task("STL2Seq9");
+    deque<int> D(ptin(0), ptin());
+    D.insert(D.begin(),D.begin()+((D.size()-5)/2),D.begin()+((D.size()-5)/2)+5);
+
+    //Show(D.begin(), D.end(), "D: ");
+    copy(D.begin(), D.end(), ptout());
+}

@@ -1,0 +1,48 @@
+#include "pt4.h"
+using namespace std;
+
+#include <iterator>
+#include <vector>
+#include <set>
+#include <map>
+#include <functional>
+#include <algorithm>
+
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+map<int,int> M;
+void f1(int a)
+{
+    M[a]++;
+}
+
+/*void f2(pair<int,int> p)
+{
+        pt << p.first;
+        pt << p.second;
+
+}
+*/
+
+
+void Solve()
+{
+    Task("STL5Assoc15");
+    vector<int> V(ptin(0), ptin());
+    
+    for_each(V.begin(), V.end(), f1);
+    
+    map<int,int>::iterator i;
+	for(i=M.begin();i!=M.end();i++)
+  {
+       pt <<(*i).first <<(*i).second;
+  }
+    
+    //for_each(M.begin(), M.end(), f2);
+    //ShowLine(M.begin(), M.end());
+    
+    
+    
+
+}

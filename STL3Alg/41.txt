@@ -1,0 +1,27 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+bool func(int n)
+{
+	return n>0;
+}
+
+void Solve()
+{
+    Task("STL3Alg41");
+    list<int> L(ptin(0), ptin());
+    
+    stable_partition (L.begin(), L.end(), func);
+
+    //Show(L.begin(), L.end(), "L: ");
+    copy(L.begin(), L.end(), ptout());
+}

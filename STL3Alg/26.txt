@@ -1,0 +1,31 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+int f(int n)
+{
+	return n<0;
+}
+
+void Solve()
+{
+    Task("STL3Alg26");
+    list<int> L(ptin(0), ptin());
+    
+    auto it = L.rbegin();
+    advance(it, L.size()/2);
+    replace_copy_if (it, L.rend() , inserter(L,L.end()) , f , 0);
+
+    	 
+
+    //Show(L.begin(), L.end(), "L: ");
+    copy(L.begin(), L.end(), ptout());
+}

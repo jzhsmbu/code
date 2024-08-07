@@ -1,0 +1,28 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <string>
+
+bool replace1 (char c) 
+{ 
+    return c>='0' && c<='9';
+}
+
+bool replace2 (char c) 
+{ 
+    return c>='A' && c<='Z';
+}
+
+void Solve()
+{
+    Task("STL4Str22");
+    string s;
+    pt >> s;
+    replace_if(s.begin(),s.begin()+s.size()/2,replace1,'*');
+    replace_if(s.begin()+s.size()/2,s.end(),replace2,'_');
+    //Show(s);
+    pt << s;
+
+}

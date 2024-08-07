@@ -1,0 +1,33 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+void Solve()
+{
+    Task("STL3Alg23");
+    list<int> L1(ptin(0), ptin());
+    list<int> L2(ptin(0), ptin());
+    
+    auto it1 = L1.begin();
+    auto it2 = L1.rbegin();
+    advance(it1, L1.size()/4);
+    advance(it2, L1.size()/2);
+	swap_ranges(L1.begin(),it1,it2);
+    
+	auto it3 = L2.begin();
+    advance(it3, L2.size()/2);
+    reverse(it3,L2.end());
+    
+    //Show(L1.begin(), L1.end(), "L1: ");
+    //Show(L2.begin(), L2.end(), "L2: ");
+    copy(L1.begin(), L1.end(), ptout());
+    copy(L2.begin(), L2.end(), ptout());
+}

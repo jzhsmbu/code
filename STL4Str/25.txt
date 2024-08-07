@@ -1,0 +1,19 @@
+#include <algorithm>
+#include <iterator>
+#include <string>
+
+bool func (char c) 
+{ 
+    return c>='0' && c<='9';
+}
+
+void Solve()
+{
+    Task("STL4Str25");
+    string s;
+    pt >> s;
+    copy_if(s.begin(),s.end(),inserter(s, s.end()),func);
+    //Show(s);
+    pt << s;
+
+}

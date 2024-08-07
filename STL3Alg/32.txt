@@ -1,0 +1,29 @@
+#include "pt4.h"
+using namespace std;
+#include<math.h>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+bool func (int i, int j) 
+{
+  return (abs(i%2)==abs(j%2));
+}
+
+void Solve()
+{
+    Task("STL3Alg32");
+    vector<int> V(ptin(0), ptin());
+    
+    auto new_end=unique(V.begin(), V.end(),func);
+    //Show(V.begin(), V.end(), "V: ");
+    V.erase(new_end,V.end());
+
+    //Show(V.begin(), V.end(), "V: ");
+    copy(V.begin(), V.end(), ptout());
+}

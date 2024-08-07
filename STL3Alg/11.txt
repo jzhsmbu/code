@@ -1,0 +1,33 @@
+#include "pt4.h"
+using namespace std;
+#include<math.h>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+bool func (int i, int j) 
+{
+    return (abs(i%2)==abs(j%2));
+}
+
+void Solve()
+{
+    Task("STL3Alg11");
+    vector<int> V(ptin(0), ptin());
+    deque<int>  D(ptin(0), ptin());
+    
+    
+    auto it = search (V.rbegin(), V.rend(), D.rbegin()+(D.size()/2), D.rend() , func);
+    //Show(*it);
+    if(it!=V.rend())
+              V.erase(it.base()-D.size()/2,it.base());
+    
+
+    //Show(V.begin(), V.end(), "V: ");
+    copy(V.begin(), V.end(), ptout());
+}

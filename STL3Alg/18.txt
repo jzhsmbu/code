@@ -1,0 +1,37 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+int func1() 
+{ 
+    static int i = 0; 
+    return ++i; 
+}
+
+int func2() 
+{ 
+    static int m = 0; 
+    return ++m; 
+} 
+
+void Solve()
+{
+    Task("STL3Alg18");
+    int n;
+    pt >> n;
+    deque<int> D(ptin(0), ptin());
+    
+    generate(D.begin(), D.begin()+n , func1);
+	generate(D.rbegin(), D.rbegin()+n , func2);
+
+    //Show(D.begin(), D.end(), "D: ");
+    copy(D.begin(), D.end(), ptout());
+}

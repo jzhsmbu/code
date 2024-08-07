@@ -1,0 +1,28 @@
+#include "pt4.h"
+using namespace std;
+#include <fstream>
+#include <numeric>
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<string> ptin;
+
+string func (string x, string y) 
+{
+	return x+y.substr(0,1);
+}
+
+
+void Solve()
+{
+    Task("STL3Alg57");
+    vector<string> V(ptin(0), ptin());
+    
+    string sum= accumulate (V.rbegin(), V.rend(), string("") ,func);
+	//Show(sum); 
+	pt << sum;
+
+}

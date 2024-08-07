@@ -1,0 +1,26 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <string>
+
+void Solve()
+{
+    Task("STL4Str12");
+    string s;
+    pt >> s;
+    int i=0,j=0;
+    int n=s.size()/3;
+    //Show(n);
+    for(i=0;i<n;i++)
+    {
+    	rotate(s.begin()+2+j,s.begin()+3+j,s.end());
+    	//ShowLine(s);
+    	j+=2;
+	}
+      
+    //Show(s);
+    pt << s;   
+
+}

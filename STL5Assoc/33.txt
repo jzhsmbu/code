@@ -1,0 +1,48 @@
+#include "pt4.h"
+using namespace std;
+#include <math.h>
+#include <iterator>
+#include <vector>
+#include <set>
+#include <map>
+#include <functional>
+#include <algorithm>
+
+typedef ptin_iterator<int> ptin;
+
+map<int,vector<int>> m;
+
+void Solve()
+{
+    Task("STL5Assoc33");
+    vector<int> V1(ptin(0), ptin());
+    vector<int> V2(ptin(0), ptin());
+    
+	vector<pair<int, vector<int>>> vv;
+	
+    for (auto i = V1.begin(); i != V1.end(); i++)
+	{
+            for (auto j = V2.begin(); j != V2.end(); j++)
+			{
+                if (abs(*i % 10) == abs(*j % 10))
+				 {
+                      m[*i].push_back(*j);
+                 }
+            }
+            if (m[*i].size() == 0) 
+			      m[*i].push_back(0);
+    }  
+    for (auto i = V1.begin(); i != V1.end(); i++)
+	    {
+            vv.push_back(pair<int, vector<int>>(m.find(*i)->first, m.find(*i)->second));
+        }
+    
+    for (auto i : vv) 
+	   { 
+	        pt << i.first ;
+			for (auto j : i.second) 
+			     pt << j;
+	   }
+    
+
+}

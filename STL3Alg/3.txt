@@ -1,0 +1,46 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+#include <functional>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+void Solve()
+{
+    Task("STL3Alg3");
+    list<int> L(ptin(0), ptin());
+    
+    auto start_iter = L.begin();
+    auto end_iter = L.rbegin();
+	start_iter =find(L.begin(), L.end(), 0);
+	if(start_iter==L.end())
+		;
+
+	else
+ {
+     	L.erase(start_iter);
+     	//Show(L.begin(), L.end(), "L: ");
+     	//L.reverse();
+     	end_iter =find(L.rbegin(), L.rend(), 0);
+     	Show(*end_iter);
+     	if(end_iter==L.rend())
+     	;
+     	
+		//L.reverse();
+		
+     	else
+       {
+     	    L.erase(--end_iter.base());
+     	    //Show(L.begin(), L.end(), "L: ");
+     	    //L.reverse();
+	   }
+     	
+ }
+        copy(L.begin(), L.end(), ptout()); 
+	
+}

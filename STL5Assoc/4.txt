@@ -1,0 +1,41 @@
+#include "pt4.h"
+using namespace std;
+#include <fstream>
+#include <iterator>
+#include <vector>
+#include <set>
+#include <map>
+#include <functional>
+#include <algorithm>
+
+typedef ptin_iterator<int> ptin;
+
+set <int> S1;
+set <int> S2;
+void f1(int a)
+{
+	S1.insert(a);
+}
+
+void f2(int b)
+{
+	S2.insert(b);
+}
+
+void Solve()
+{
+    Task("STL5Assoc4");
+    string name;
+    pt >> name;
+    vector<int> V(ptin(0), ptin());
+    
+    for_each(V.begin(), V.begin()+V.size()/2, f1);
+    for_each(V.begin()+V.size()/2, V.end(), f2);
+    
+	//Show(S1.begin(), S1.end());
+	//Show(S2.begin(), S2.end());
+	
+	ofstream os(name);
+	set_intersection(S1.begin(), S1.end(), S2.begin(), S2.end(), ostream_iterator<int>(os, " "));
+
+}

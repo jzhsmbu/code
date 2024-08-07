@@ -1,0 +1,31 @@
+#include "pt4.h"
+using namespace std;
+#include <algorithm>
+#include <fstream>
+#include <iterator>
+#include <vector>
+#include <deque>
+#include <list>
+
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+
+void Solve()
+{
+    Task("STL2Seq3");
+    vector<int> n1(ptin(0),ptin());
+    
+    /*vector<int> n2;
+    vector<int> n3;
+    n2.resize(n1.size()/2);
+    n3.resize(n1.size()/2);
+    copy(n1.begin()+n1.size()/2,n1.end(),n2.begin());
+    copy(n1.begin(),n1.begin()+n1.size()/2,n3.begin());
+    */
+    copy(n1.begin()+n1.size()/2,n1.end(), ptout());
+    copy(n1.begin(),n1.begin()+n1.size()/2, ptout());
+
+    
+    
+}

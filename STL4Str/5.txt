@@ -1,0 +1,18 @@
+#include "pt4.h"
+using namespace std;
+
+#include <algorithm>
+#include <iterator>
+#include <string>
+
+void Solve()
+{
+    Task("STL4Str5");
+    string s;
+    int N;
+    pt >> N >> s;
+    copy(s.rend()-N,s.rend(),inserter(s, s.end()));
+    //Show(s);
+    pt << s;
+
+}
