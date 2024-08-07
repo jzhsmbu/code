@@ -1,0 +1,53 @@
+package server;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ColorMap {
+
+    //定义了一个Map类型的变量colors，用于存储颜色名称和对应的RGB颜色值数组。该变量被声明为私有的，只能在该类中被访问
+    //类型是Map<String, int[]>，表示一个映射关系，即将String类型的颜色名称映射为对应的RGB颜色值数组。
+    // 这里使用了泛型语法，String表示键的类型，int[]表示值的类型。
+    private Map<String, int[]> colors;
+
+    //定义了一个构造函数，用于初始化colors变量。
+    // 在这个例子中，构造函数向colors中添加了四种颜色，分别为"RED"、"GREEN"、"BLUE"和"YELLOW"，每种颜色对应一个RGB颜色值数组
+    public ColorMap() {
+
+        //HashMap是一个基于哈希表实现的Map，可以用来存储键值对
+        colors = new HashMap<>();
+
+        //使用put()方法向"colors" Map中添加了一个键值对，键为字符串"RED"，值为一个整型数组{255, 0, 0}。
+        // 这个数组表示了RGB颜色模型中的红色，其中255表示红色的强度为最大值，0表示绿色和蓝色的强度为最小值
+        colors.put("RED", new int[]{255, 0, 0});
+        colors.put("GREEN", new int[]{0, 255, 0});
+        colors.put("BLUE", new int[]{0, 0, 255});
+        colors.put("YELLOW", new int[]{255, 255, 0});
+        // Add more colors as needed
+    }
+
+    //定义了一个公共方法getRGB，用于根据颜色名称获取对应的RGB颜色值数组。
+    // 该方法首先将颜色名称转换为大写形式，然后从colors变量中查找对应的RGB颜色值数组，如果找到了就返回该数组，否则返回一个包含三个0的数组。
+    public int[] getRGB(String colorName)
+    {
+        //colors.get对应colors.put
+        int[] rgb = colors.get(colorName.toUpperCase());
+        //三个0的数组表示RGB颜色空间中的黑色，因为在RGB颜色空间中，颜色分量的取值范围是0到255，三个分量都为0时对应的是黑色
+        return rgb != null ? rgb : new int[]{0, 0, 0};
+    }
+}
+
+
+
+    //setCarColor实现改变机器颜色的命令
+    /*@WebMethod
+    public void setCarColor(int carIndex, String colorName)
+    {
+        //调用 ColorMap 对象的 getRGB 方法获取颜色名称对应的 RGB 值数组，并将其赋值给 rgb 变量
+        int[] rgb = colorMap.getRGB(colorName);
+
+        //使用 rgb 数组的前三个元素创建一个新的 Color 对象，表示该颜色的 RGB 值。
+        Color color = new Color(rgb[0], rgb[1], rgb[2]);
+
+        //获取指定索引的小车，然后将其颜色设置为 color
+        carServer.getCar(carIndex).setColor(color);
+    }*/

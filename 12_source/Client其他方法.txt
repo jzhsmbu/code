@@ -1,0 +1,46 @@
+    /*
+    //定义一个包含四个方向的数组 directions
+    private Direction[] directions = {Direction.DOWN, Direction.UP, Direction.LEFT, Direction.RIGHT};
+
+    //定义一个 HashMap 对象 hashMap，用于将数字索引映射到方向
+    //使用 hashMap 的原因是为了将数字索引和方向对象进行映射，这样可以方便地通过数字索引获取相应的方向对象
+    //好处是在需要使用数字索引获取方向对象的时候，可以直接从 hashMap 中获取，不需要遍历数组查找相应元素，从而提高了效率。
+    // 此外，使用 hashMap 还可以在代码中更清晰地表示数字索引和方向对象之间的对应关系
+    public static HashMap<Integer, Direction> hashMap;
+
+    public Client()
+    {
+        hashMap = new HashMap<>();
+        for (int i = 0; i < directions.length; i++)
+        {
+            //将 directions 数组中的每个元素和相应的索引添加到 hashMap 中，
+            // 其中索引是数字，方向是 Direction 类型。这样就可以通过数字索引来获取方向了。
+            hashMap.put(i, directions[i]);
+        }
+    }
+
+    public static int randomDirection(int old_Direction)
+    {
+        Random new_random = new Random();
+
+        //创建了一个大小为 3 的整型数组 directions
+        int[] directions = new int[3];
+
+        //使用 index 变量来跟踪我们已经向该数组中添加了多少个元素
+        int index = 0;
+
+        //使用 for 循环来遍历 Direction 枚举中的所有值，如果当前值不等于 currentDirection，则将其添加到 directions 数组中
+        for (int i = 0; i < Direction.values().length; i++)
+        {
+            if (i != old_Direction)
+            {
+                directions[index] = i;
+                index = index + 1;
+            }
+        }
+
+        //我们使用随机数生成器来生成一个随机索引，以从 directions 数组中选择一个随机方向
+        //返回该方向的索引
+        return directions[new_random.nextInt(3)];
+    }
+    */
