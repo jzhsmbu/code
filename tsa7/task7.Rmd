@@ -1,0 +1,74 @@
+---
+title: "task7 - Цзян Чжэнхуа"
+output: html_document
+date: "2024-04-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## task7(Вариант13)
+
+Сначала считайте данные из файла csv и преобразуйте их в форму временного ряда.
+
+```{r}
+setwd("C:\\Users\\lenovo\\Desktop\\时间序列分析\\tsa7")
+dat <- read.csv("TrainingData.csv", header = TRUE)
+dat <- dat[complete.cases(dat), ]
+
+Dates <- as.Date(dat$Дата)
+# Dates
+
+library(xts)
+Inflation_rate <- xts(dat$Значение,order.by = Dates)
+plot(Inflation_rate ,type = "l", col = "blue",lwd = 2,main = "Inflation_rate China")
+```
+
+### Постройте прогноз на 12 интервалов времени вперед ряда с помощью пакета prophet.
+
+```{r}
+library(prophet)
+library(dplyr)
+
+Inflation.data <- data.frame(ds = Dates,y = Inflation_rate)
+Prophet.Inflation <- prophet(Inflation.data,daily.seasonality = F,weekly.seasonality=F,n.changepoints = 10,
+                         growth = 'linear',interval.width = 0.6)
+
+future_Inflation <- make_future_dataframe(Prophet.Inflation, periods = 12,freq = 'month')
+tail(future_Inflation)
+
+Inflation.predict <- predict(Prophet.Inflation,future_Inflation)
+prophet_plot_components(Prophet.Inflation, Inflation.predict)
+```
+
+
+### Проведите оценку качества построенной prophet модели,проведите кросс-валидацию
+
+Поскольку единицы units в функции - "дни", а данные - в месяцах, то при установке параметра кросс-валидации пусть месяцы умножаются на 30.
+
+```{r}
+initial <- 12 * 30  
+period <- 12 * 30   
+horizon <- 12 * 30  
+
+# Perform cross validation
+Prophet.Inflation_cv <- cross_validation(Prophet.Inflation,
+                                         initial = initial,
+                                         period = period,
+                                         horizon = horizon,
+                                         units = "days")
+head(Prophet.Inflation_cv)
+
+performance_metrics(Prophet.Inflation_cv, metrics = "mse",
+                    rolling_window = 1) %>% head()
+
+plot_cross_validation_metric(Prophet.Inflation_cv, metric = "mse",
+                             rolling_window = 0.1)
+```
+
+### Изобразите на графике автоматически обнаруженные точки излома.
+
+```{r}
+plot(Prophet.Inflation, Inflation.predict)+ add_changepoints_to_plot(Prophet.Inflation)
+```

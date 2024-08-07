@@ -1,0 +1,123 @@
+---
+title: "task8 - Цзян Чжэнхуа"
+output: html_document
+date: "2024-04-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## task8(Вариант13)
+
+### Постройте прогноз на 12 интервалов времени вперед с помощью bsts модели. При этом используйте модель локального линейного тренда и сезонность при ее наличии
+
+Сначала считайте данные из файла csv и преобразуйте их в форму временного ряда.
+
+```{r}
+setwd("C:\\Users\\lenovo\\Desktop\\时间序列分析\\tsa8")
+dat <- read.csv("TrainingData.csv",header = TRUE)
+dat <- dat[complete.cases(dat), ]
+head(dat)
+```
+
+Все ряды собираем в одну матрицу, делаем их типа xts - временной ряд, и затем весь набор объявляем типа data.frame.
+
+```{r}
+library(xts)
+library(bsts)
+Dates <- as.Date(dat$Дата)
+data.xts <- as.xts(dat$Значение,order.by = Dates)
+data.xts <- as.data.frame(data.xts)
+col.names <- colnames(data.xts)
+col.names[1]<- "y"
+colnames(data.xts) <-col.names 
+head(data.xts)
+data.xts <- as.xts(data.xts, order.by = Dates)
+```
+
+проигнормруем все регрессионные компоненты и оставим только локальный линейный тренд и сезонную компоненту.
+
+```{r}
+ss <- AddLocalLinearTrend(list(), data.xts$y)
+ss <- AddSeasonal(ss, data.xts$y, nseasons = 12)
+model.no.regressors <- bsts(data.xts$y,
+                            state.specification = ss,
+                            niter = 1000)
+summary(model.no.regressors)
+```
+
+```{r}
+plot(model.no.regressors, "components")
+
+PlotBstsResiduals(model.no.regressors, burn = SuggestBurn(.1, model.no.regressors), style = "dynamic")
+
+pred1 <- predict(model.no.regressors, horizon = 12)
+plot(pred1, plot.original = 200)
+```
+
+### Добавьте в исходную bsts модель ряды zt и ϵt как дополнительные регрессоры.
+
+Создайте объекты zt и ϵt и преобразуйте их в объекты xts.
+
+```{r}
+set.seed(1000)
+
+sigma_squared <- 1 
+epsilon_t <- rnorm(n = length(dat$Значение), mean = 0, sd = sqrt(sigma_squared))
+
+y_t <- dat$Значение
+z_t <- 0.5 + 1 * y_t + epsilon_t
+
+data.xts <- as.xts(cbind(y_t, z_t, epsilon_t), order.by = Dates)
+colnames(data.xts) <- c("y", "z", "epsilon")
+```
+
+Добавьте в исходную bsts модель ряды zt и ϵt как дополнительные регрессоры.
+
+```{r}
+ss <- AddLocalLinearTrend(list(), data.xts$y)
+ss <- AddSeasonal(ss, data.xts$y, nseasons = 12)
+
+model.with.regressors <- bsts(y ~ ., 
+                              state.specification = ss, 
+                              niter = 1000, 
+                              data = data.xts,seed = 1000)
+
+summary(model.with.regressors)
+plot(model.with.regressors, "comp")
+
+plot(model.with.regressors$state.contributions[1,2,],type='l',col = 'green',main ='Seasonal component.The first MCMC simulation',lwd = 3,ylab = 'seasonal component' )
+```
+
+### Оцените bsts модель с экстра аргументом expected.model.size= 1. Затем оцените bsts модель с ожидаемым числом предикторов expected.model.size= 2. Графически покажите значимость предикторов.
+
+```{r}
+# expected.model.size = 1
+model.size1 <- bsts(y ~ .,
+                    state.specification = ss,
+                    niter = 1000,
+                    data = data.xts,seed = 1000)
+
+plot(model.size1, "coef")
+```
+
+```{r}
+# expected.model.size = 2
+model.size2 <- bsts(y ~ .,
+                    state.specification = ss,
+                    niter = 1000,
+                    expected.model.size = 2,
+                    data = data.xts,seed = 123)
+
+plot(model.size2, "coef")
+```
+
+### Графически изобразите значимость методом plot(), какой из предикторов был наиболее значим в каждый момент времени.
+
+```{r}
+CompareBstsModels(list("Model 1" = model.no.regressors,
+                       "Model default.expected.model.size" = model.size1,
+                       "Model expected model size =2" = model.size2),
+                  colors = c("black","green", "blue"))
+```

@@ -1,0 +1,164 @@
+---
+title: "task1 - Цзян Чжэнхуа"
+output: html_document
+date: "2024-02-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## task1(Вариант3)
+### 1.Построить аддитивную и мультипликативную оценку сезонной компоненты для процесса доли (процента) каждодневного изменения числа заболевших, начиная с 1 сентября 2022 года по 31 декабря 2022.
+  
+Сначала я обработал данные,и вычислить процесса доли (процента) каждодневного изменения числа заболевших, начиная с 1 сентября 2022 года по 31 декабря 2022.
+
+
+```{r}
+library(COVID19)
+x <- covid19("China",level =1,start='2022-09-01',end = '2022-12-31')
+x <- x[,2:7]
+head(x)
+
+# Calculate the number of new confirmed cases per day
+confirmed <- diff(x$confirmed)
+n <-length(confirmed)
+# Calculate the rate of increase in the number of confirmed cases per day (negative values indicate a decrease).
+rate.conf <- confirmed[2:n]/confirmed[1:(n-1)]-1
+rate.conf
+```
+
+
+Затем построить аддитивную и мультипликативную оценку сезонной компоненты. Поскольку неделя состоит из 7 дней, установите frequency = 7.
+
+```{r}
+# Creating Time Series Objects
+rate_sequencest <- ts(rate.conf, frequency = 7)
+```
+
+### аддитивная модель
+```{r}
+# Seasonal decomposition using additive modeling
+addseason <- decompose(rate_sequencest, type = "additive")
+```
+
+```{r}
+plot(addseason)
+```
+
+### мультипликативная модель
+```{r}
+# Seasonal decomposition using a multiplicative model
+multseason <- decompose(rate_sequencest, type = "multiplicative")
+```
+
+```{r}
+plot(multseason)
+```
+
+
+### 2.Построить графики недельной сезонной компонент с привязкой ко дням недели.
+
+### аддитивная модель
+```{r}
+# Plotting the seasonal components of time series
+plot(addseason$figure,type = "h",main = 'Rate of China. Additive Seasonal Component',col = 'green',lwd = 15 )
+```
+
+```{r}
+# Plotting the residual components of a time series
+plot(addseason$random,type = 'b',pch = 20,main = 'Rate of China. Additive Seasonal Component deleted',col = 'green',lwd = 1 )
+```
+
+### мультипликативная модель
+```{r}
+# Plotting the seasonal components of time series
+plot(multseason$figure,type = "h",main = 'Rate of China. Miltiplicative Seasonal Component',col = 'green',lwd = 15 )
+```
+
+```{r}
+# Plotting the residual components of a time series
+plot(multseason$random,type = 'b',pch = 20,main = 'Rate of China. Miltiplicative Seasonal Component deleted',col = 'green',lwd = 1 )
+```
+
+### 3.В какой день недели изменение доли числа заболевших максимально и минимально
+
+```{r}
+# Plotting the seasonal components of time series
+plot(addseason$figure,type = "h",main = 'Rate of China. Additive Seasonal Component',col = 'green',lwd = 15 )
+```
+
+1 сентября 2022 года - это четверг, поэтому первый день графика - четверг, а последний день - среда.
+
+Таким образом, как видно из графика, наибольшее изменение в доле болеющих людей происходит по четвергам, а наименьшее - по воскресеньям.
+
+### 4.Оценить показатель Херста к ряду для лагов 7,30,60,90 дней. Персистентный или антиперсистентный ряд.
+
+Определение функции, используемой для вычисления показателя Херста.
+
+```{r}
+getHurstExponent <- function(timeSeries, maxLag = 20) {
+  # Generate range of hysteresis values
+  lags <- 2:maxLag
+  
+  # Calculate the standard deviation of the lag difference
+  tau <- sapply(lags, function(lag) {
+    std.dev <- sd(timeSeries[(lag+1):length(timeSeries)] - timeSeries[1:(length(timeSeries)-lag)])
+    return(std.dev)
+  })
+  
+  reg <- lm(log(tau) ~ log(lags))
+  
+  # Returns the Hurst exponent, an estimate of the slope of the linear model
+  return(coef(reg)[2])
+}
+```
+
+Оценить показатель Херста к ряду для лагов 7,30,60,90 дней.
+```{r}
+lags <- c(7, 30, 60, 90)
+# Iterate over the lagged values, calculate and print the Hurst exponent
+for (lag in lags) {
+  hurstExp <- getHurstExponent(rate_sequencest, lag)
+  cat(sprintf("Hurst exponent with %d lags: %.4f\n", lag, hurstExp))
+}
+```
+
+Согласно полученным результатам, значения экспоненты Харста все ниже 0,5, и ряд является антиперсистентным.
+
+
+### 5.Проверить остатки после удаления сезонных компонент на стационарность. Выдать P-value соответствующего критерия и вывод о стационарности.
+
+```{r}
+library(tseries)
+decomposed_rate <- decompose(rate_sequencest)
+
+# Getting the residuals
+residuals <- decomposed_rate$random
+residuals <- na.omit(residuals)
+
+# Checking the smoothness of residuals using the ADF test
+adf_test_result <- adf.test(residuals, alternative = "stationary")
+
+print(adf_test_result)
+
+# Determine whether the residual sequence is smooth or not based on p-value
+if (adf_test_result$p.value < 0.05) {
+  cat("The sequence of residuals is smooth，p-value:", adf_test_result$p.value, "\n")
+} else {
+  cat("The residual sequence is not smooth，p-value:", adf_test_result$p.value, "\n")
+}
+```
+
+
+### 6.Построить автокорреляционную функцию для остатков.
+
+```{r}
+library(stats)
+# Plotting the autocorrelation of residuals using the acf() function
+acf(residuals, main = "ACF for Residuals", lag.max = 10)
+```
+
+Как видно из полученного графика, коэффициенты автокорреляции все попадают в пределы удвоенного стандартного отклонения по мере увеличения порядка k задержки коэффициентов автокорреляции и быстро затухают по направлению к 0.
+
+Таким образом, можно сделать вывод, что остаточный ряд является гладким, что согласуется с выводом, сделанным с помощью теста p-value.

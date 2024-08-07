@@ -1,0 +1,54 @@
+---
+title: "task6 - Цзян Чжэнхуа"
+output: html_document
+date: "2024-04-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## нейронной сети метод nnetar
+
+На основании предыдущих результатов была определена наиболее адекватная модель ARMA: SARMA(1,0,0)(0,0,1).
+
+Поэтому при определении параметров было выбрано p = 1 и P = 1, я попробовал тот же случай с большим P, но прогноз был лучше при P = 1.
+
+```{r}
+setwd("C:\\Users\\lenovo\\Desktop\\时间序列分析\\tsa6")
+dat <- read.csv("TrainingData.csv")
+dat <- dat[complete.cases(dat), ]
+
+x <- ts(dat$Значение,start = c(2017,1),frequency = 12)
+plot(x)
+```
+
+
+```{r}
+train_length <- length(x) - 12
+
+# Creating the training set
+train <- window(x, end = c((train_length) %/% frequency(x) + start(x)[1], (train_length) %% frequency(x)))
+
+# Creating Test Sets
+test <- window(x, start = c(train_length %/% frequency(x) + start(x)[1], (train_length %% frequency(x)) + 1))
+
+print(train)
+print(test)
+```
+
+
+```{r}
+# SARMA(1,0,0)(0,0,1)
+p <- 1
+P <- 1
+library(forecast)
+nnet<- nnetar(train,p=p,P = P,size = 10 )
+
+forecast_result <- forecast(nnet,h = 12)
+forecast_result
+
+summary(nnet)
+
+plot(forecast_result, main="Forecast vs Actual", xlab="Time", ylab="Value")
+```
