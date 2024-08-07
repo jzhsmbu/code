@@ -1,0 +1,12 @@
+DownCommand 3
+UpRightCommand 2
+ColorCommand blue
+NameCommand Alex
+RightCommand 5
+UpCommand 4
+LeftCommand 3
+DownLeftCommand 3
+DownCommand 7
+NameCommand Petr
+ColorCommand green
+BlinkCommand blue
