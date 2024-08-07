@@ -1,0 +1,12 @@
+hello\webservice\HelloServer.class
+hello\webservice\Message.class
+hello\webservice\HelloServerService.class
+hello\webservice\package-info.class
+hello\HelloClient.class
+hello\HelloServer.class
+hello\webservice\SayHelloResponse.class
+hello\webservice\ObjectFactory.class
+hello\Message.class
+hello\webservice\SendMessageResponse.class
+hello\webservice\SayHello.class
+hello\webservice\SendMessage.class
