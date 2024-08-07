@@ -1,0 +1,50 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI6File29");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    char name[12];
+    if (rank == 0)
+    {
+        pt >> name;
+    }
+    MPI_Bcast(name, 12, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+    MPI_File f;
+
+    MPI_File_open(MPI_COMM_WORLD, name, MPI_MODE_RDONLY, MPI_INFO_NULL, &f);
+
+    MPI_Offset offset;
+    MPI_File_get_size(f, &offset);
+    int N = sqrt((offset / sizeof(int)) / size);
+    Show(N);
+
+    MPI_Datatype t1;
+    MPI_Type_contiguous(N, MPI_INT, &t1);
+    MPI_Type_commit(&t1);
+
+    MPI_Datatype t11;
+    MPI_Type_create_resized(t1, 0, N * 3 * 4, &t11);
+    MPI_Type_commit(&t11);
+
+    char c[8] = "native";
+    MPI_File_set_view(f, (rank / 3) * N * 3 * 4 * N+ (rank % 3) * 4 * N, MPI_INT, t11, c, MPI_INFO_NULL);
+
+    int* A = new int[N * N];
+    MPI_File_read_all(f, A, N * N, MPI_INT, MPI_STATUS_IGNORE);
+    for (int i = 0; i < N * N; i++)
+    {
+        pt << A[i];
+    }
+
+    MPI_File_close(&f);
+}

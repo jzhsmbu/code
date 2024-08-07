@@ -1,0 +1,66 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter17");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double* A = new double[size / 2];
+    if (rank == 0 || rank == 1)
+    {
+        for (int i = 0; i < size / 2; i++)
+        {
+            pt >> A[i];
+        }
+    }
+    if (rank == 0 || rank == 1)
+    {
+        for (int i = 0; i < size / 2; i++)
+        {
+            Show(A[i]);
+        }
+    }
+
+    int local_rank,local_size;
+    MPI_Comm new_comm,new_comm1;
+    MPI_Comm_get_parent(&new_comm);
+
+    if (new_comm != MPI_COMM_NULL)
+    {
+        MPI_Comm_rank(new_comm, &local_rank);
+        MPI_Comm_split(new_comm, local_rank % 2, local_rank, &new_comm1);
+        MPI_Comm_rank(new_comm1, &local_rank);
+        Show(local_rank);
+
+        MPI_Comm_remote_size(new_comm1, &local_size);
+
+        double* B = new double[local_size];
+        MPI_Recv(B, local_size, MPI_DOUBLE, 0, 0, new_comm1, MPI_STATUSES_IGNORE);
+        double C[1];
+        MPI_Scatter(B, 1, MPI_DOUBLE, C, 1, MPI_DOUBLE, MPI_ROOT, new_comm1);
+    }
+    else
+    {    
+        MPI_Comm_spawn((char*)"ptprj.exe", NULL, 2, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &new_comm, MPI_ERRCODES_IGNORE);
+        MPI_Comm_split(new_comm, rank % 2, rank, &new_comm1);
+        MPI_Comm_rank(new_comm1, &local_rank);
+
+        if (local_rank == 0)
+        {
+            MPI_Send(A, size / 2, MPI_DOUBLE, 0, 0, new_comm1);
+        }
+
+        double C[1];
+        MPI_Scatter(NULL, 1, MPI_DOUBLE, C, 1, MPI_DOUBLE, 0, new_comm1);
+        Show(C[0]);
+        pt << C[0];
+    }
+
+}

@@ -1,0 +1,41 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI5Comm19");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Comm new_comm;
+    int K = size;
+    int dims[] = { 2,2,K / 4 };
+    int periods[] = { 0,0,0 };
+    MPI_Cart_create(MPI_COMM_WORLD, 3, dims, periods, 0, &new_comm);
+
+    MPI_Comm new_comm_sub;
+    int remain_dims[] = { 0,0,1 };
+    MPI_Cart_sub(new_comm, remain_dims, &new_comm_sub);
+    MPI_Comm_size(new_comm_sub, &size);
+    MPI_Comm_rank(new_comm_sub, &rank);
+    //Show(size);
+    //Show(rank);
+
+    int A;
+    pt >> A;
+    int* B = new int[size];
+    MPI_Gather(&A, 1, MPI_INT, B, 1, MPI_INT, 0, new_comm_sub);
+
+    if (rank == 0)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            pt << B[i];
+        }
+    }
+}

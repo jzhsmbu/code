@@ -1,0 +1,98 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI4Type21");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   
+    MPI_Datatype t;
+    MPI_Type_create_resized(MPI_DOUBLE, 0, (size - 1) * 8, &t);
+    MPI_Type_commit(&t);
+    MPI_Datatype* s = new MPI_Datatype[size];
+    for (int i = 0; i < size; i++)
+    {
+        s[i] = t;
+    }
+    MPI_Datatype* d = new MPI_Datatype[size];
+    for (int i = 0; i < size; i++)
+    {
+        d[i] = MPI_DOUBLE;
+    }
+
+    int k = size - 1;
+    double* A = new double[k * k];
+    double* B = new double[k];
+
+    int* sendcou = new int[size];
+    int* recvcou = new int[size];
+    int* sdis = new int[size];
+    int* rdis = new int[size];
+    if (rank == 0)
+    {
+        for (int i = 0; i < k * k; i++)
+        {
+            pt >> A[i];
+        }
+
+        for (int i = 0; i < size; i++)
+        {
+            sendcou[i] = k;
+        }
+        sendcou[0] = 0;
+
+        for (int i = 0; i < size; i++)
+        {
+            recvcou[i] = 0;
+        }
+
+        for (int i = 0; i < size; i++)
+        {
+            sdis[i] = (i - 1) * 8;
+        }
+        sdis[0] = 0;
+
+        for (int i = 0; i < size; i++)
+        {
+            rdis[i] = 0;
+        }
+
+        MPI_Alltoallw(A, sendcou, sdis, s, B, recvcou, rdis, d, MPI_COMM_WORLD);
+    }
+    else
+    {
+        for (int i = 0; i < size; i++)
+        {
+            sendcou[i] = 0;
+        }
+
+        for (int i = 0; i < size; i++)
+        {
+            recvcou[i] = 0;
+        }
+        recvcou[0] = k;
+
+        for (int i = 0; i < size; i++)
+        {
+            sdis[i] = 0;
+        }
+
+        for (int i = 0; i < size; i++)
+        {
+            rdis[i] = 0;
+        }
+
+        MPI_Alltoallw(A, sendcou, sdis, s, B, recvcou, rdis, d, MPI_COMM_WORLD);
+        for (int i = 0; i < k; i++)
+        {
+            pt << B[i];
+        }
+    }
+
+}

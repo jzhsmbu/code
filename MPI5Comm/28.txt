@@ -1,0 +1,89 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI5Comm28");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int N;
+    N = (size - 1) / 2;
+    int* index = new int[size];
+    int* edges = new int[4 * N];
+
+    index[0] = N;
+    for (int i = 1; i <= size - 1; i++)
+    {
+        if (i % 2 == 0)
+        {
+            index[i] = index[i - 1] + 1;
+        }
+        else
+        {
+            index[i] = index[i - 1] + 2;
+        }
+    }
+
+    edges[0] = 1;
+    for (int i = 1; i < N; i++)
+    {
+        edges[i] = edges[i - 1] + 2;
+    }
+    int j = 1;
+    for (int i = N; i < 4 * N; i++)
+    {
+        if (j % 2 == 1)
+        {
+            edges[i] = 0;
+            edges[i + 1] = j + 1;
+            i++;
+            j++;
+        }
+        else
+        {
+            edges[i] = j - 1;
+            j++;
+        }
+    }
+
+
+    if (rank == 0)
+    {
+        for (int i = 0; i < size; ++i)
+            Show(index[i]);
+        ShowLine();
+        for (int i = 0; i < 4*N; ++i)
+            Show(edges[i]);
+    }
+
+    MPI_Comm g_comm;
+    MPI_Graph_create(MPI_COMM_WORLD, size, index, edges, 0, &g_comm);
+
+    int count;
+    MPI_Graph_neighbors_count(g_comm, rank, &count);
+    //Show(count);
+    int* neighbors = new int[count];
+    MPI_Graph_neighbors(g_comm, rank, count, neighbors);
+
+    MPI_Status s;
+    int A,B;
+    pt >> A;
+
+    for (int i = 0; i < count; i++)
+    {
+        MPI_Send(&A, 1, MPI_INT, neighbors[i], 0, g_comm);
+        MPI_Recv(&B, 1, MPI_INT, neighbors[i], 0, g_comm, &s);
+        pt << B;
+    }
+
+    delete[] index;
+    delete[] edges;
+    delete[] neighbors;
+
+}

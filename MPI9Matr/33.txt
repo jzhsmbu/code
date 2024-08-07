@@ -1,0 +1,136 @@
+#include "pt4.h"
+#include "mpi.h"
+
+#include <cmath>
+
+int k;              // number of processes
+int r;              // rank of the current process
+
+int m, p, q;        // sizes of the given matrices
+int m0, p0, q0;     // sizes of the matrix blocks
+int k0;             // order of the Cartesian grid (equal to sqrt(k))
+
+int *a_, *b_, *c_;  // arrays to store matrices in the master process
+int *a, *b, *c, *t; // arrays to store matrix blocks in each process
+
+MPI_Datatype MPI_BLOCK_A; // datatype for the block of the matrix A
+MPI_Datatype MPI_BLOCK_B; // datatype for the block of the matrix B
+MPI_Datatype MPI_BLOCK_C; // datatype for the block of the matrix C
+
+MPI_Comm MPI_COMM_GRID = MPI_COMM_NULL;
+             // communicator associated with a two-dimensional Cartesian grid
+MPI_Comm MPI_COMM_ROW = MPI_COMM_NULL;
+             // communicator associated with rows of a two-dimensional grid
+MPI_Comm MPI_COMM_COL = MPI_COMM_NULL;
+             // communicator associated with columns of a two-dimensional grid
+
+
+void Matr4CreateCommRow(MPI_Comm grid, MPI_Comm& row)
+{
+    int* dims = new int[2];
+    for (int i = 0; i < 2; i++)
+    {
+        if (i == 0)
+            dims[i] = 0;
+        else
+            dims[i] = 1;
+    }
+
+    MPI_Cart_sub(grid, dims, &row);
+
+}
+
+
+void Matr4CreateCommGrid(MPI_Comm& comm)
+{
+    int K;
+    // k0 = (int)floor(sqrt((double)k) + 0.1)
+    K = (int)floor(sqrt((double)k) + 0.1);
+
+    int* period = new int[2];
+    for (int i = 0; i < 2; i++)
+    {
+        period[i] = 1;
+    }
+
+    int* dims = new int[2];
+    for (int i = 0; i < 2; i++)
+    {
+        dims[i] = K;
+    }
+
+    MPI_Cart_create(MPI_COMM_WORLD, 2, dims, period, 0, &comm);
+
+}
+
+void Solve()
+{
+    Task("MPI9Matr33");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    k = size;
+    r = rank;
+    k0 = (int)floor(sqrt((double)k) + 0.1);
+
+    int rank1;
+    int rank2;
+    pt >> m0;
+    pt >> p0;
+
+    int* A = new int[m0 * p0];
+    for (int i = 0; i < m0 * p0; i++)
+    {
+        pt >> A[i];
+    }
+
+    Matr4CreateCommGrid(MPI_COMM_GRID);
+    Matr4CreateCommRow(MPI_COMM_GRID, MPI_COMM_ROW);
+
+    MPI_Comm_rank(MPI_COMM_ROW, &rank1);
+    MPI_Comm_rank(MPI_COMM_GRID, &rank2);
+
+    //Show(rank1);
+    //Show(rank2);
+    
+    int* t = new int[2];
+    MPI_Cart_coords(MPI_COMM_GRID, rank2, 2, t);
+
+    for (int i = 0; i < 2; i++)
+    {
+        Show(t[i]);
+        pt << t[i];
+    }
+
+    Show(rank1);
+    pt << rank1;
+
+    t = new int[m0 * p0];
+    if (rank / k0 != rank1)
+        ;
+    else
+    {
+        for (int i = 0; i < m0 * p0; i++)
+        {
+            t[i] = A[i];
+        }
+
+        for (int i = 0; i < m0 * p0; i++)
+        {
+            Show(t[i]);
+        }
+    }
+
+    MPI_Bcast(t, m0 * p0, MPI_INT, rank / k0, MPI_COMM_ROW);
+
+    for (int i = 0; i < m0 * p0; i++)
+    {
+        Show(t[i]);
+        pt << t[i];
+    }
+
+}

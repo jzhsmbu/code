@@ -1,0 +1,127 @@
+#include "pt4.h"
+#include "mpi.h"
+void Solve()
+{
+	Task("MPI8Inter22");
+	int flag;
+	MPI_Initialized(&flag);
+	if (flag == 0)
+		return;
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	MPI_Status s;
+	MPI_Comm new_comm1,new_comm2, new_comm3, new_comm4;
+	int N, A,local_rank;
+	int flag1 = 10;
+	pt >> N;
+	if (N != 0)
+	{
+		pt >> A;
+		//Show(A);
+	}
+
+	int color;
+	if (N == 0)
+	{
+		color = MPI_UNDEFINED;
+	}
+	else
+	{
+		color = N;
+	}
+	MPI_Comm_split(MPI_COMM_WORLD, color, rank, &new_comm1);
+
+	MPI_Comm_get_parent(&new_comm3);
+	MPI_Comm_get_parent(&new_comm4);
+
+	if (new_comm3 == MPI_COMM_NULL && new_comm4 == MPI_COMM_NULL) 
+	{
+		flag1 = 0;
+		char c1[10] = "ptprj.exe";
+		if (N == 1)
+		{
+			MPI_Comm_spawn(c1, NULL, 1, MPI_INFO_NULL, 0, new_comm1, &new_comm3, MPI_ERRCODES_IGNORE);
+		}
+		if (N != 0 && N != 1)
+		{
+			MPI_Comm_spawn(c1, NULL, N, MPI_INFO_NULL, 0, new_comm1, &new_comm4, MPI_ERRCODES_IGNORE);
+		}
+	}
+	else
+	{
+		flag1 = 100;
+	}
+
+	if (flag1 == 0) 
+	{
+		MPI_Comm_rank(new_comm1, &local_rank);
+		if (N == 1) 
+		{
+			MPI_Send(&A, 1, MPI_INT, 0, 0, new_comm3);
+		}
+
+		if (N != 0 && N != 1)
+		{
+			MPI_Send(&A, 1, MPI_INT, local_rank, 0, new_comm4);
+		}
+
+	}
+
+	if (flag1 == 100) 
+	{
+		if (size == 1) 
+		{
+			MPI_Recv(&A, 1, MPI_INT, rank, 0, new_comm3, &s);
+
+			char port[MPI_MAX_PORT_NAME];
+			MPI_Open_port(MPI_INFO_NULL, port);
+
+			char c2[10] = "password";
+			MPI_Publish_name(c2, MPI_INFO_NULL, port);
+			MPI_Comm_accept(port, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &new_comm2);
+
+			int new_size;
+			MPI_Comm_remote_size(new_comm2, &new_size);
+
+			int* B = new int[new_size];
+			MPI_Gather(&A, 1, MPI_INT, B, 1, MPI_INT, MPI_ROOT, new_comm2);
+			MPI_Send(&new_size, 1, MPI_INT, 0, 0, new_comm3);
+
+			for (int i = 0; i < new_size; i++) 
+			{
+				MPI_Send(&B[i], 1, MPI_INT, 0, 0, new_comm3);
+				//Show(B[i]);
+			}
+
+		}
+		else 
+		{
+			MPI_Recv(&A, 1, MPI_INT, rank, 0, new_comm4, &s);
+
+			char port[MPI_MAX_PORT_NAME];
+			char c2[10] = "password";
+
+			MPI_Lookup_name(c2, MPI_INFO_NULL, port);
+			MPI_Comm_connect(port, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &new_comm2);
+
+			int B[1];
+			MPI_Gather(&A, 1, MPI_INT, B, 1, MPI_INT, 0, new_comm2);
+		}
+	}
+
+	if (flag1 == 0 && N == 1) 
+	{
+		int C;
+		MPI_Recv(&C, 1, MPI_INT, 0, 0, new_comm3, &s);
+		Show(C);
+
+		for (int i = 0; i < C; i++)
+		{
+			MPI_Recv(&A, 1, MPI_INT, 0, 0, new_comm3, &s);
+			Show(A);
+			pt << A;
+		}
+	}
+}

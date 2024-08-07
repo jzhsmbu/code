@@ -1,0 +1,72 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI2Send23");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int T, N;
+    int a;
+    double b;
+
+    if (rank != 0)
+    {
+        pt >> T >> N;
+        if (T == 0)
+        {
+            int *aa = new int[N];
+            for (int i = 0; i < N; i++)
+            {
+                pt >> a;
+                aa[i] = a;
+            }
+            MPI_Send(aa, N, MPI_INT, 0, T, MPI_COMM_WORLD);
+        }            
+        else
+        {
+            double *bb = new double[N];
+            for (int i = 0; i < N; i++)
+            {
+                pt >> b;
+                bb[i] = b;
+            }
+            MPI_Send(bb, N, MPI_DOUBLE, 0, T, MPI_COMM_WORLD);
+        }
+    }
+    else
+    {
+        for (int num = 1; num < size; num++)
+        {
+
+            MPI_Status s;
+            MPI_Probe(num, MPI_ANY_TAG, MPI_COMM_WORLD, &s);
+
+            if (s.MPI_TAG == 0)
+            {
+                int p;
+                MPI_Get_count(&s, MPI_INT, &p);
+                Show(p);
+                int* c = new int[p];
+                MPI_Recv(c, p, MPI_INT, num, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                for (int i = 0; i < p; i++)
+                    pt << c[i];
+            }
+            else
+            {
+                 int p;
+                 MPI_Get_count(&s, MPI_DOUBLE , &p);
+                 double *d = new double[p];
+                 MPI_Recv(d, p, MPI_DOUBLE, num, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                 for (int i = 0; i < p; i++)
+                     pt << d[i];
+            }
+        }
+    }
+}

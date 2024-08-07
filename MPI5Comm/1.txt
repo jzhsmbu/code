@@ -1,0 +1,54 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI5Comm1");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Group group_world,new_group;
+    MPI_Comm_group(MPI_COMM_WORLD, &group_world);
+    int K = (size + 1) / 2;
+    int* ranks = new int[K];
+    int k = 0;
+    for (int i = 0; i < K; i++)
+    {
+        ranks[i] = k;
+        k = k + 2;
+    }
+    MPI_Group_incl(group_world, K, ranks, &new_group);
+
+    MPI_Comm new_comm;
+    MPI_Comm_create(MPI_COMM_WORLD, new_group, &new_comm);
+    if (new_comm == MPI_COMM_NULL)
+        return;
+
+    MPI_Comm_size(new_comm, &size);
+    MPI_Comm_rank(new_comm, &rank);
+
+    int* b = new int[K];
+    if (rank == 0)
+    {
+        int a;
+        for (int i = 0; i < K; i++)
+        {
+            pt >> a;
+            b[i] = a;
+        }
+    }
+
+    //Show(size);
+    int bb[1];
+    if (new_comm != MPI_COMM_NULL)
+    {
+        MPI_Scatter(b, 1, MPI_INT, bb, 1, MPI_INT, 0, new_comm);
+    }
+    //Show(bb[0]);
+    pt << bb[0];
+}

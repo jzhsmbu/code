@@ -1,0 +1,60 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI3Coll18");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+      
+    int* sendcounts = new int[size];
+    for (int i = 0; i < size; i++)
+    {
+        sendcounts[i] = 2;
+    }
+    int* sdis = new int[size];
+
+    for (int i = 0; i < size; i++)
+    {
+        if (i == 0)
+            sdis[i] = size - 1;
+        else
+            sdis[i] = sdis[i - 1] - 1;
+    }
+
+    int* recvcounts = new int[size];
+    for (int i = 0; i < size; i++)
+    {
+        recvcounts[i] = 2;
+    }
+
+    int* rdis = new int[size];
+    for (int i = 0; i < size; i++)
+    {
+        if (i == 0)
+            rdis[i] = 0;
+        else
+            rdis[i] = rdis[i - 1]+2;
+    }
+
+    double aa[100] = { 0 };
+    double res[100] = { 0 };
+    for (int i = 0; i < size + 1; i++)
+    {
+        double a;
+        pt >> a;
+        aa[i] = a;
+    }
+
+    MPI_Alltoallv(aa, sendcounts, sdis, MPI_DOUBLE,res,recvcounts,rdis,MPI_DOUBLE,MPI_COMM_WORLD);
+    for (int i = 0; i < 2*size; i++)
+    {
+        pt << res[i];
+    }
+}

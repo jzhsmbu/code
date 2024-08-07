@@ -1,0 +1,68 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter14");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int C;
+    pt >> C;
+
+    int X, Y;
+    int comm_null = -1;
+    int new_rank,new_size;
+    MPI_Comm peer, new_comm1,new_comm2;
+    MPI_Comm_dup(MPI_COMM_WORLD, &peer);
+
+    if (C == 0)
+    {
+        MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, rank, &new_comm1);
+    }
+    else
+    {
+        int k = C;
+        if (C == 1)
+        {
+            MPI_Comm_split(MPI_COMM_WORLD, k, rank, &new_comm1);
+        }
+        else
+        {
+            MPI_Comm_split(MPI_COMM_WORLD, k, size - rank, &new_comm1);
+        }
+    }
+
+    if (new_comm1 == MPI_COMM_NULL)
+    {
+        pt << comm_null;
+        return;
+    }
+
+    MPI_Comm_rank(new_comm1, &new_rank);
+    Show(new_rank);
+    pt << new_rank;
+
+    MPI_Intercomm_create(new_comm1, 0, peer, rank == 0 ? size - 1 : 0, 100, &new_comm2);
+    MPI_Comm_remote_size(new_comm2, &new_size);
+
+    if (C != 0)
+    {
+        for (int i = 0; i < new_size; i++)
+        {
+            int A[1];
+            pt >> A[0];
+            MPI_Send(A, 1, MPI_INT, i, 0, new_comm2);
+            int B[1];
+            MPI_Recv(B, 1, MPI_INT, i, 0, new_comm2, MPI_STATUSES_IGNORE);
+
+            Show(B[0]);
+            pt << B[0];
+        }
+    }
+}

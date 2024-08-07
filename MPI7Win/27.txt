@@ -1,0 +1,73 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win27");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double A[2] = { 0,0 };
+    double B[2] = { 0,0 };
+
+    if (rank != 0)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            pt >> A[i];
+        }
+        //for (int i = 0; i < 2; i++)
+        //{
+        //    Show(A[i]);
+        //}
+    }
+
+    MPI_Win win;
+    MPI_Win_create(A, 2 * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+    if (rank == 0)
+    {
+        double maxma[2] = { A[0],A[1] };
+        for (int i = 1; i < size; i++)
+        {
+            MPI_Win_lock(MPI_LOCK_SHARED, i, 0, win);
+            MPI_Get(maxma, 2, MPI_DOUBLE, i, 0, 2, MPI_DOUBLE, win);
+            MPI_Win_unlock(i, win);
+
+            //for (int k = 0; k < 2; k++)
+            //{
+            //    Show(maxma[k]);
+            //}
+
+            if (pow(maxma[0],2) + pow(maxma[1],2) - (pow(A[0],2) + pow(A[1],2)) >= 0)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    A[j] = maxma[j];
+                }
+            }
+
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
+    else
+    {
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, win);
+        MPI_Get(B, 2, MPI_DOUBLE, 0, 0, 2, MPI_DOUBLE, win);
+        MPI_Win_unlock(0, win);
+
+        for (int i = 0; i < 2; i++)
+        {
+            pt << B[i];
+        }
+    }
+
+}

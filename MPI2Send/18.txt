@@ -1,0 +1,59 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI2Send18");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Status s;
+    int N;
+    pt >> N;
+
+    double a;
+    double c[5] = { 0 };
+
+    if (rank % 2 == 0)
+    {
+        int p;
+        MPI_Sendrecv(&N, 1, MPI_INT, rank + 1, 0, &p, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, &s);
+        double aa[5] = { 0 };
+        for (int i = 0; i < N; i++)
+        {
+            pt >> a;
+            aa[i] = a;
+        }
+
+        MPI_Sendrecv(aa, N, MPI_DOUBLE, rank + 1, 0, c, p, MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD, &s);
+        for (int i = 0; i < p; i++)
+        {
+            pt << c[i];
+        }
+
+    }
+    else
+    {
+        int p;
+        MPI_Sendrecv(&N, 1, MPI_INT, rank - 1, 0, &p, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, &s);
+        double aa[5] = { 0 };
+        for (int i = 0; i < N; i++)
+        {
+            pt >> a;
+            aa[i] = a;
+        }
+
+        MPI_Sendrecv(aa, N, MPI_DOUBLE, rank - 1, 0, c, p, MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD, &s);
+        for (int i = 0; i < p; i++)
+        {
+            pt << c[i];
+        }
+
+    }
+
+}

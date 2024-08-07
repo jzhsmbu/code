@@ -1,0 +1,43 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI2Send6");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int rc;
+    void* buffer;
+    double a;
+
+    if (rank > 0)
+    {
+        double b;
+        MPI_Recv(&b, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        pt << b;
+    }
+    else
+    {
+        for (int i = size-1; i >= 1; i--)
+        {
+            size = size + MPI_BSEND_OVERHEAD;
+            buffer = (void*)malloc(size);
+            rc = MPI_Buffer_attach(buffer, size);
+
+            pt >> a;
+            MPI_Bsend(&a, 1, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+
+            MPI_Buffer_detach(&buffer, &size);
+            free(buffer);
+        }
+    }
+
+  
+
+}

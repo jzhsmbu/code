@@ -1,0 +1,64 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win26");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Win win;
+
+    double* A = new double[5];
+    double B[5] = { 0.00,0.00 ,0.00 ,0.00 ,0.00 };
+
+    if (rank == 0)
+    {
+        MPI_Win_create(B, 5 * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+        //MPI_Barrier - 跨组的所有成员启动屏障同步
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
+
+
+    else
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            pt >> A[i];
+        }
+
+        MPI_Win_create(A, 0, sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+        for (int i = 0; i < 5; i++)
+        {
+            Show(A[i]);
+        }
+
+        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, win);
+        MPI_Accumulate(A, 5, MPI_DOUBLE, 0, 0, 5, MPI_DOUBLE, MPI_MAX, win);
+        MPI_Win_unlock(0, win);
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, win);
+        MPI_Get(B, 5, MPI_DOUBLE, 0, 0, 5, MPI_DOUBLE, win);
+        MPI_Win_unlock(0, win);
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        for (int i = 0; i < 5; i++)
+        {
+            //Show(B[i]);
+            pt << B[i];
+        }
+    }
+
+
+}

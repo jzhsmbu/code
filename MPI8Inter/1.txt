@@ -1,0 +1,41 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter1");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int X;
+    pt >> X;
+
+    MPI_Comm local;
+    MPI_Comm_split(MPI_COMM_WORLD, rank % 2 == 0 ? 0 : 1, rank, &local);
+    if (local == MPI_COMM_NULL)
+    {
+        return;
+    }
+
+    int local_rank;
+    MPI_Comm_rank(local, &local_rank);
+    //Show(local_rank);
+    pt << local_rank;
+
+    MPI_Comm new_comm1, new_comm2;
+    MPI_Comm_dup(MPI_COMM_WORLD, &new_comm1);
+
+    MPI_Intercomm_create(local, 0, new_comm1, rank % 2 == 0 ? 1 : 0, 100, &new_comm2);
+
+    MPI_Send(&X, 1, MPI_INT, local_rank, 0, new_comm2);
+    int B[1];
+    MPI_Recv(B, 1, MPI_INT, local_rank, 0, new_comm2, MPI_STATUSES_IGNORE);
+    //Show(B[0]);
+    pt << B[0];
+
+}

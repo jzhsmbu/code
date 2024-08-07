@@ -1,0 +1,54 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win16");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double* A = new double[size];
+    double B;
+
+    for (int i = 0; i < size; i++)
+    {
+        pt >> A[i];
+    }
+    pt >> B;
+
+    MPI_Win win;
+    MPI_Win_create(A, size * sizeof(double), sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+    MPI_Win_fence(0, win);
+
+    if (rank < size - 1)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            MPI_Accumulate(&B, size, MPI_DOUBLE, rank + 1, i, 1, MPI_DOUBLE, MPI_MAX, win);
+            MPI_Win_fence(0, win);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < size; i++)
+        {
+            MPI_Accumulate(&B, size, MPI_DOUBLE, 0, i, 1, MPI_DOUBLE, MPI_MAX, win);
+            MPI_Win_fence(0, win);
+        }
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        double aa[1] = {0};
+        MPI_Get(aa, 1, MPI_DOUBLE, i, rank, 1, MPI_DOUBLE, win);
+        MPI_Win_fence(0, win);
+        pt << aa[0];
+    }
+    
+    MPI_Win_free(&win);
+}

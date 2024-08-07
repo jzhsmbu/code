@@ -1,0 +1,79 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter3");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double X, Y;
+
+    MPI_Comm new_comm, new_comm1, new_comm2;
+    MPI_Comm peer;
+    MPI_Comm_dup(MPI_COMM_WORLD, &peer);
+
+    int new_rank;
+
+    if (rank % 3 == 0)
+    {
+        pt >> X;
+        MPI_Comm_split(MPI_COMM_WORLD, 0, rank, &new_comm);
+        MPI_Comm_rank(new_comm, &new_rank);
+        pt << new_rank;
+
+        MPI_Intercomm_create(new_comm, 0, peer, size - 2, 1, &new_comm1);
+
+        MPI_Send(&X, 1, MPI_DOUBLE, size - rank - 2, 0, peer);
+        double A[1];
+        MPI_Recv(A, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 0, peer, MPI_STATUSES_IGNORE);
+
+        Show(A[0]);
+        pt << A[0];
+    }
+
+    else if (rank % 3 == 1)
+    {
+        pt >> X;
+        pt >> Y;
+        MPI_Comm_split(MPI_COMM_WORLD, 1, size - rank, &new_comm);
+        MPI_Comm_rank(new_comm, &new_rank);
+        pt << new_rank;
+
+        MPI_Intercomm_create(new_comm, 0, peer, 0, 1, &new_comm1);
+        MPI_Intercomm_create(new_comm, 0, MPI_COMM_WORLD, 2, 2, &new_comm2);
+
+        double A[1];
+        double B[1];
+        MPI_Recv(A, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 0, peer, MPI_STATUSES_IGNORE);
+        MPI_Recv(B, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 0, peer, MPI_STATUSES_IGNORE);
+        MPI_Send(&X, 1, MPI_DOUBLE, size - rank - 2, 0, peer);
+        MPI_Send(&Y, 1, MPI_DOUBLE, size - rank, 0, peer);
+
+        Show(A[0]);
+        Show(B[0]);
+        pt << A[0] << B[0];
+    }
+
+    else
+    {
+        pt >> Y;
+        MPI_Comm_split(MPI_COMM_WORLD, 2, rank, &new_comm);
+        MPI_Comm_rank(new_comm, &new_rank);
+        pt << new_rank;
+
+        MPI_Intercomm_create(new_comm, 0, MPI_COMM_WORLD, size - 2, 2, &new_comm2);
+        MPI_Send(&Y, 1, MPI_DOUBLE, size - rank, 0, peer);
+        double B[1];
+        MPI_Recv(B, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 0, peer, MPI_STATUSES_IGNORE);
+
+        Show(B[0]);
+        pt << B[0];
+    }
+
+}

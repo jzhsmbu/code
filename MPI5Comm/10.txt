@@ -1,0 +1,34 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI5Comm10");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Comm new_comm;
+    int N;
+    int A;
+    pt >> N;
+    pt >> A;
+    int color = N % 2 == 0 ? 0 : 1;
+    MPI_Comm_split(MPI_COMM_WORLD, color, rank, &new_comm);
+
+    MPI_Comm_size(new_comm, &size);
+
+    int send[1];
+    send[0] = A;
+    int* recv = new int[size];
+    MPI_Allgather(send, 1, MPI_INT, recv, 1, MPI_INT, new_comm);
+    for (int i = 0; i < size; i++)
+    {
+        pt << recv[i];
+    }
+
+}

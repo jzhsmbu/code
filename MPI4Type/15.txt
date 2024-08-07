@@ -1,0 +1,45 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI4Type15");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if (rank == 0)
+    {
+        int k = size - 1;
+        double* A = new double[k * k];
+
+        for (int i = 0; i < k * k; i++)
+        {
+            pt >> A[i];
+        }
+
+        MPI_Datatype t;
+        MPI_Type_create_resized(MPI_DOUBLE, 0, (size - 1) * 8, &t);
+        MPI_Type_commit(&t);
+        for (int i = 1; i < size; i++)
+        {
+            MPI_Send(&A[i - 1], size - 1, t, i, 0, MPI_COMM_WORLD);
+        }
+        delete[] A;
+    }
+    else
+    {
+        double* A = new double[size - 1];
+        MPI_Recv(A, size - 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+        for (int i = 0; i < size - 1; i++)
+        {
+            pt << A[i];
+        }
+        delete [] A;
+    }
+
+}

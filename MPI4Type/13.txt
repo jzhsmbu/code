@@ -1,0 +1,61 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI4Type13");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double a;
+    int b;
+    int position, position1;
+    char packbuf[100];
+    char packbuf1[100];
+
+    if (rank != 0)
+    {
+        pt >> a;
+        position = 0;
+        MPI_Pack(&a, 1, MPI_DOUBLE, packbuf, 8, &position, MPI_COMM_WORLD);
+        MPI_Send(packbuf, position, MPI_PACKED, 0, 0, MPI_COMM_WORLD);
+
+        int* bb = new int[rank];
+        for (int i = 0; i < rank; i++)
+        {
+            pt >> b;
+            bb[i] = b;
+        }
+        position1 = 0;
+        MPI_Pack(bb, rank, MPI_INT, packbuf1, 4*rank, &position1, MPI_COMM_WORLD);
+        MPI_Send(packbuf1, position1, MPI_PACKED, 0, 0, MPI_COMM_WORLD);
+    }
+    
+    else
+    {
+        for (int i = 1; i < size; i++)
+        {
+            MPI_Recv(packbuf, 8, MPI_PACKED, i, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+            MPI_Recv(packbuf1, 4*i, MPI_PACKED, i, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+
+            position = 0;
+            position1= 0;
+            MPI_Unpack(packbuf, 8, &position, &a, 1, MPI_DOUBLE, MPI_COMM_WORLD);
+            int* bb = new int[i];
+            MPI_Unpack(packbuf1, 4*i, &position1, bb, i, MPI_INT, MPI_COMM_WORLD);
+
+            pt << a;
+            for (int j = 0; j < i; j++)
+            {
+                pt << bb[j];
+            }
+        }
+        
+    }
+
+}

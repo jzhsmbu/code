@@ -1,0 +1,39 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI2Send12");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int a;
+    pt >> a;
+    if (rank > 0)
+    {
+        if (rank != size-1)
+        {
+            MPI_Ssend(&a, 1, MPI_INT, rank+1, 0, MPI_COMM_WORLD);
+            MPI_Recv(&a, 1, MPI_INT, rank-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            pt << a;
+        }
+        else
+        {
+            MPI_Ssend(&a, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+            MPI_Recv(&a, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            pt << a;
+        }
+    }
+    else
+    {
+        int b;
+        MPI_Recv(&b, 1, MPI_INT, size-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        pt << b;
+        MPI_Ssend(&a, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+    }
+}

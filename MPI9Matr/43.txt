@@ -1,0 +1,80 @@
+#include "pt4.h"
+#include "mpi.h"
+
+#include <cmath>
+
+int k;              // number of processes
+int r;              // rank of the current process
+
+int m, p, q;        // sizes of the given matrices
+int m0, p0, q0;     // sizes of the matrix blocks
+int k0;             // order of the Cartesian grid (equal to sqrt(k))
+
+int *a_, *b_, *c_;  // arrays to store matrices in the master process
+int *a, *b, *c, *t; // arrays to store matrix blocks in each process
+
+MPI_Datatype MPI_BLOCK_A; // datatype for the block of the matrix A
+MPI_Datatype MPI_BLOCK_B; // datatype for the block of the matrix B
+MPI_Datatype MPI_BLOCK_C; // datatype for the block of the matrix C
+
+MPI_Comm MPI_COMM_GRID = MPI_COMM_NULL;
+             // communicator associated with a two-dimensional Cartesian grid
+MPI_Comm MPI_COMM_ROW = MPI_COMM_NULL;
+             // communicator associated with rows of a two-dimensional grid
+MPI_Comm MPI_COMM_COL = MPI_COMM_NULL;
+             // communicator associated with columns of a two-dimensional grid
+
+void CreateTypeBand(int p0, int m0, int p, MPI_Datatype* type)
+{
+    MPI_Type_vector(m0, p0, p, MPI_INT, type);
+    MPI_Type_commit(type);
+}
+
+void Solve()
+{
+    Task("MPI9Matr43");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    k = size;
+    r = rank;
+    k0 = (int)floor(sqrt((double)k) + 0.1);
+
+    pt >> m0;
+    pt >> q0;
+
+    int sz_c = m0 * q0;
+    c = new int[sz_c];
+
+    for (int i = 0; i < sz_c; i++)
+    {
+        pt >> c[i];
+        Show(c[i]);
+    }
+
+    char name[12];
+    if (r == 0)
+    {
+        pt >> name;
+    }
+    MPI_Bcast(name, 12, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+    MPI_Status s;
+    MPI_File f;
+    MPI_File_open(MPI_COMM_WORLD, name, MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &f);
+
+    int sz = q0 * k0;
+    CreateTypeBand(q0, m0, sz, &MPI_BLOCK_C);
+
+    MPI_Offset offset = ((r % k0) * q0 + (r / k0) * m0 * q0 * k0) * sizeof(int);
+    char c1[8] = "native";
+    MPI_File_set_view(f, offset, MPI_INT, MPI_BLOCK_C, c1, MPI_INFO_NULL);
+
+    MPI_File_write_all(f, c, sz_c, MPI_INT, &s);
+
+    MPI_File_close(&f);
+}

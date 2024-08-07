@@ -1,0 +1,111 @@
+#include "pt4.h"
+#include "mpi.h"
+
+#include <cmath>
+
+int k;              // number of processes
+int r;              // rank of the current process
+
+int m, p, q;        // sizes of the given matrices
+int na, nb;         // sizes of the matrix bands
+
+int *a_, *b_, *c_;  // arrays to store matrices in the master process
+int *a, *b, *c;     // arrays to store matrix bands in each process
+
+MPI_Datatype MPI_COLS; // datatype for the band of the matrix B
+
+void Matr2Calc(int step)
+{
+    int count;
+    for (int i = 0; i < na; i++)
+    {
+        for (int l = 0; l < nb; l++)
+        {
+            count = 0;
+            for (int k = 0; k < p; k++)
+            {
+                int sz_a = k + i * p;
+                int sz_b = l + k * nb;
+                count = count + a[sz_a] * b[sz_b];
+                Show(count);
+            }
+            
+            int sz_c;
+            sz_c = i * nb + l + (r + k + step) % k * na * nb;
+            c[sz_c] = count;
+        }
+    }
+
+    MPI_Status s;
+
+    int buf_size_1 = (k - 1 + r) % k;
+    int buf_size_2 = (k + 1 + r) % k;
+    MPI_Sendrecv_replace(a, p * na, MPI_INT, buf_size_1, 0, buf_size_2, 0, MPI_COMM_WORLD, &s);
+}
+
+void Solve()
+{
+    Task("MPI9Matr14");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    k = size;
+    r = rank;
+
+    pt >> na;
+    pt >> p;
+    pt >> nb;
+
+    int size_a = na * p;
+    int size_b = nb * p;
+    int size_c = na * nb * k;
+
+    a = new int[size_a];
+    b = new int[size_b];
+    c = new int[size_c];
+
+    for (int i = 0; i < size_a; i++)
+    {
+        pt >> a[i];
+        Show(a[i]);
+    }
+    ShowLine('\n');
+
+    for (int i = 0; i < size_b; i++)
+    {
+        pt >> b[i];
+        Show(b[i]);
+    }
+    ShowLine('\n');
+
+    for (int i = 0; i < size_c; i++)
+    {
+        pt >> c[i];
+        Show(c[i]);
+    }
+    ShowLine('\n');
+
+    int step1 = 0;
+    int step2 = 1;
+
+    Matr2Calc(step1);
+    Matr2Calc(step2);
+
+    for (int i = 0; i < size_c; i++)
+    {
+        Show(c[i]);
+        pt << c[i];
+    }
+    ShowLine('\n');
+
+    for (int i = 0; i < size_a; i++)
+    {
+        Show(a[i]);
+        pt << a[i];
+    }
+
+}

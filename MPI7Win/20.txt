@@ -1,0 +1,55 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win20");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double* A = new double[3];
+    if (rank % 3 == 0)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            pt >> A[i];
+        }
+    }
+
+    MPI_Win win;
+    MPI_Win_create(A, rank % 3 == 0 ? 3 * sizeof(double) : 0, sizeof(double), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+    int* b = new int[size / 3];
+    for (int i = 0; i < size / 3; i++)
+    {
+        b[i] = 3 * i;
+    }
+
+    MPI_Group g0, g;
+    MPI_Comm_group(MPI_COMM_WORLD, &g0);
+
+    if (rank % 3 == 0)
+    {
+        MPI_Group_excl(g0, size / 3, b, &g);
+        MPI_Win_post(g, 0, win);
+        MPI_Win_wait(win);
+    }
+    else
+    {
+        MPI_Group_incl(g0, size / 3, b, &g);
+        MPI_Win_start(g, 0, win);
+        
+        double* B = new double[rank % 3];
+        MPI_Get(B, rank % 3, MPI_DOUBLE, rank - rank % 3, rank % 3 - 1, rank % 3, MPI_DOUBLE, win);
+        MPI_Win_complete(win);
+        for (int i = 0; i < rank % 3; i++)
+        {
+            pt << B[i];
+        }    
+    }
+}

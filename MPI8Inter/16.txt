@@ -1,0 +1,49 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter16");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double* A = new double[size];
+    for (int i = 0; i < size; i++)
+    {
+        pt >> A[i];
+    }
+
+    int local_rank;
+    MPI_Comm new_comm;
+    MPI_Comm_get_parent(&new_comm);
+
+    if (new_comm != MPI_COMM_NULL)
+    {
+        local_rank = MPI_ROOT;
+    }
+    else
+    {
+        local_rank = rank;
+        MPI_Comm_spawn((char*)"ptprj.exe", NULL, size, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &new_comm, MPI_ERRCODES_IGNORE);
+    }
+    Show(local_rank);
+
+    double B[1];
+    MPI_Reduce_scatter_block(&A[0], B, 1, MPI_DOUBLE, MPI_MAX, new_comm);
+
+    if (local_rank != MPI_ROOT)
+    {
+        MPI_Recv(B, 1, MPI_DOUBLE, rank, 0, new_comm, MPI_STATUSES_IGNORE);
+        Show(B[0]);
+        pt << B[0];
+    }
+    else
+    {
+        MPI_Send(B, 1, MPI_DOUBLE, rank, 0, new_comm);
+    }
+}

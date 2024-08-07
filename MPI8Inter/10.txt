@@ -1,0 +1,76 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter10");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int C, R1, R2;
+    int* X = new int[3];
+    pt >> C;
+
+    MPI_Comm comm,new_comm;
+    MPI_Comm peer;
+    MPI_Comm_dup(MPI_COMM_WORLD, &peer);
+
+    if (C != 0)
+    {
+        MPI_Comm_split(MPI_COMM_WORLD, C, rank, &comm);
+    }
+    else
+    {
+        MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, rank, &comm);
+        pt << -1;
+        return;
+    }
+
+    int local_rank;
+    MPI_Comm_rank(comm, &local_rank);
+    Show(local_rank);
+    pt << local_rank;
+
+    MPI_Intercomm_create(comm, 0, peer, rank == 0 ? size / 2 : 0, 100, &new_comm);
+    pt >> R1;
+    pt >> R2;
+
+    if (C != 1)
+    {
+        if (local_rank == R2)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                pt >> X[i];
+            }
+            MPI_Bcast(X, 3, MPI_INT, MPI_ROOT, new_comm);
+        }
+        MPI_Bcast(X, 3, MPI_INT, MPI_PROC_NULL, new_comm);
+        MPI_Bcast(X, 3, MPI_INT, R1, new_comm);
+    }
+    else
+    {
+        if (local_rank == R1)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                pt >> X[i];
+            }
+            MPI_Bcast(X, 3, MPI_INT, MPI_ROOT, new_comm);
+        }
+        MPI_Bcast(X, 3, MPI_INT, MPI_PROC_NULL, new_comm);
+        MPI_Bcast(X, 3, MPI_INT, R2, new_comm);
+        
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        Show(X[i]);
+        pt << X[i];
+    }
+}

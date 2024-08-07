@@ -1,0 +1,50 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI6File4");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    char name[12];
+    if (rank == 0)
+    {
+        pt >> name;
+    }
+    MPI_Bcast(name, 12, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+
+    MPI_File f;
+    MPI_File_open(MPI_COMM_WORLD, name, MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &f);
+
+    if (rank != 0)
+    {
+        int count = 0;
+        double* a = new double[rank];
+        for (int i = 0; i < rank; i++)
+        {
+            pt >> a[i];
+        }
+        for (int i = 0; i < rank; i++)
+            Show(a[i]);
+
+        for (int i = 0; i < rank; i++)
+        {
+            count = count + i;
+        }
+
+        MPI_Status s;
+        MPI_Offset offset = count*sizeof(double);
+        MPI_File_write_at(f, offset, a, rank, MPI_DOUBLE, &s);
+
+    }
+
+    MPI_File_close(&f);
+
+}

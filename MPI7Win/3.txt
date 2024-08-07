@@ -1,0 +1,40 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win3");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int* A = new int[size - 1];
+    if (rank == 0)
+    {
+        for (int i = 0; i < size - 1; i++)
+        {
+            pt >> A[i];
+        }
+    }
+
+    MPI_Win win;
+    MPI_Win_create(A, (size - 1) * sizeof(int), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+    MPI_Win_fence(0, win);
+
+    int B[1];
+    if (rank != 0)
+    {
+        MPI_Get(B, 1, MPI_INT, 0, size - 1 - rank, 1, MPI_INT, win);
+    }
+
+    MPI_Win_fence(0, win);
+    
+    if (rank != 0)
+        pt << B[0];
+
+    MPI_Win_free(&win);
+}

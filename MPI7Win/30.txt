@@ -1,0 +1,102 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win30");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int* A = new int[size+2];
+    int count = 0;
+    for (int i = 0; i < size; i++)
+    {
+        pt >> A[i];
+        count = count + A[i];
+    }
+    A[size] = count;
+    A[size + 1] = 1;
+
+    for (int i = 0; i < size + 2; i++)
+    {
+        //Show(A[i]);
+    }
+     
+
+
+    MPI_Win win;
+    MPI_Group group_1, group_2;
+    MPI_Comm_group(MPI_COMM_WORLD, &group_1);
+
+    if (rank == 0)
+    {
+        MPI_Win_create(A, (size + 2) * sizeof(int), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+        for (int i = 1; i < size; i++)
+        {
+            int c[1] = { i };
+            MPI_Group_incl(group_1, 1, c, &group_2);
+            MPI_Win_post(group_2, 0, win);
+            MPI_Win_wait(win);
+
+            MPI_Win_post(group_2, 0, win);
+            MPI_Win_wait(win);
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        for (int i = 0; i < size + 2; i++)
+        {
+            Show(A[i]);
+            pt << A[i];
+        }
+    }
+    else
+    {
+        int* B = new int[size + 2];
+        MPI_Win_create(B, 0, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+
+        int c[1] = { 0 };
+        MPI_Group_incl(group_1, 1, c, &group_2);
+        MPI_Win_start(group_2, 0, win);
+        MPI_Get(B, size + 2, MPI_INT, 0, 0, size + 2, MPI_INT, win);
+        MPI_Win_complete(win);
+
+        if (A[size] == B[size])
+        {
+            A[size + 1] = A[size + 1] + B[size + 1];
+            for (int i = 0; i < size + 2; i++)
+            {
+                B[i] = A[i];
+            }
+        }
+        else if (A[size] < B[size])
+        {
+            for (int i = 0; i < size + 2; i++)
+            {
+                B[i] = A[i];
+            }
+        }
+
+        MPI_Win_start(group_2, 0, win);
+        MPI_Put(B, size + 2, MPI_INT, 0, 0, size + 2, MPI_INT, win);
+        MPI_Win_complete(win);
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Win_lock(MPI_LOCK_SHARED, 0, 0, win);
+
+        int* C = new int[size + 2];
+        MPI_Get(C, size + 2, MPI_INT, 0, 0, size + 2, MPI_INT, win);
+
+        MPI_Win_unlock(0, win);
+        for (int i = 0; i < size + 2; i++)
+        {
+            Show(C[i]);
+            pt << C[i];
+        }
+    }
+}

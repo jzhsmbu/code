@@ -1,0 +1,42 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI7Win15");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    double* A = new double[size];
+    for (int i = 0; i < size; i++)
+    {
+        pt >> A[i];
+        Show(A[i]);
+    }
+
+    double* B = new double[size];
+    MPI_Win win;
+    int double_size = 8;
+    MPI_Win_create(B, size* double_size, double_size, MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+    MPI_Win_fence(0, win);
+
+    for (int j = 0; j < size; j++)
+    {
+        MPI_Put(&A[j], 1, MPI_DOUBLE, j, rank, 1, MPI_DOUBLE, win);
+    }
+    
+    MPI_Win_fence(0, win);
+    for (int j = 0; j < size; j++)
+    {
+        Show(B[j]);
+        pt << B[j];
+    }
+
+    MPI_Win_free(&win);
+
+}

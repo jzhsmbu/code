@@ -1,0 +1,119 @@
+#include "pt4.h"
+#include "mpi.h"
+
+#include <cmath>
+
+int k;              // number of processes
+int r;              // rank of the current process
+
+int m, p, q;        // sizes of the given matrices
+int na, nb;         // sizes of the matrix bands
+
+int *a_, *b_, *c_;  // arrays to store matrices in the master process
+int *a, *b, *c;     // arrays to store matrix bands in each process
+
+void Matr1ScatterFile()
+{
+    char name1[12];
+    char name2[12];
+
+    if (r == 0)
+    {
+        pt >> m >> p >> q;
+        pt >> name1 >> name2;
+    }
+
+    MPI_Bcast(&m, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&p, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&q, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    MPI_Bcast(name1, 12, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Bcast(name2, 12, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+    MPI_Status s;
+    MPI_File f1,f2;
+    MPI_File_open(MPI_COMM_WORLD, name1, MPI_MODE_RDONLY, MPI_INFO_NULL, &f1);
+    MPI_File_open(MPI_COMM_WORLD, name2, MPI_MODE_RDONLY, MPI_INFO_NULL, &f2);
+
+    double num1 = m / (k * 1.0);
+    double num2 = p / (k * 1.0);
+    na = (int)ceil(num1);
+    nb = (int)ceil(num2);
+
+    //定义数组a
+    a = new int[p * (int)ceil(num1)];
+
+    MPI_File_seek(f1, p * r * (int)ceil(num1) * sizeof(int), MPI_SEEK_SET);
+
+    MPI_File_read_all(f1, a, p * (int)ceil(num1), MPI_INT, &s);
+
+    for (int i = 0; i < na * p; i++)
+    {
+        //Show(a[i]);
+    }
+
+    //定义数组b
+    b = new int[q * (int)ceil(num2)];
+
+    MPI_File_seek(f2, q * r * (int)ceil(num2) * sizeof(int), MPI_SEEK_SET);
+
+    MPI_File_read_all(f2, b, q* (int)ceil(num2), MPI_INT, &s);
+
+    for (int i = 0; i < nb * q; i++)
+    {
+        //Show(b[i]);
+    }
+
+    MPI_File_close(&f1);
+    MPI_File_close(&f2);
+}
+
+void Solve()
+{
+    Task("MPI9Matr8");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    k = size;
+    r = rank;
+
+    Matr1ScatterFile();
+
+    //输出所有数据
+    pt << na << p;
+    pt << nb << q;
+
+    c = new int[na * q];
+    for (int i = 0; i < na * q; i++)
+    {
+        c[i] = 0;
+        Show(c[i]);
+    }
+
+    for (int i = 0; i < na * p; i++)
+    {
+        if (a[i] < -100)
+            a[i] = 0;
+        Show(a[i]);
+        pt << a[i];
+    }
+
+    for (int i = 0; i < nb * q; i++)
+    {
+        if (b[i] < -100)
+            b[i] = 0;
+        Show(b[i]);
+        pt << b[i];
+    }
+
+    for (int i = 0; i < na * q; i++)
+    {
+        Show(c[i]);
+        pt << c[i];
+    }
+
+}

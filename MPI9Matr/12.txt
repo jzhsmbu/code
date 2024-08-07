@@ -1,0 +1,223 @@
+#include "pt4.h"
+#include "mpi.h"
+
+#include <cmath>
+
+int k;              // number of processes
+int r;              // rank of the current process
+
+int m, p, q;        // sizes of the given matrices
+int na, nb;         // sizes of the matrix bands
+
+int *a_, *b_, *c_;  // arrays to store matrices in the master process
+int *a, *b, *c;     // arrays to store matrix bands in each process
+
+MPI_Datatype MPI_COLS; // datatype for the band of the matrix B
+
+void Matr2CreateTypeBand(int p, int n, int q, MPI_Datatype& type)
+{
+    Show(p);
+    Show(n);
+    Show(q);
+    MPI_Type_vector(p, n, q, MPI_INT, &type);
+    MPI_Type_commit(&type);
+}
+
+void Create(int*& A, int*& B)
+{
+    int b_q = k * nb;
+
+    int row_a = m * p;
+    int row_b = p * q;
+
+    int size_a = na * k * p;
+    int size_b = p * b_q;
+
+    A = new int[size_a];
+    B = new int[size_b];
+
+    Matr2CreateTypeBand(p, nb, b_q, MPI_COLS);
+
+    if (r == 0) 
+    {
+        for (int i = 0; i < size_a; i++) 
+        {
+            if (i < row_a) 
+            {
+                A[i] = a_[i];
+            }
+            else 
+            {
+                A[i] = 0;
+            }
+        }
+
+        int count = 0;
+        for (int i = 0; i < size_b; i++) 
+        {
+            if (i % b_q < q) 
+            {
+                B[i] = b_[count++];
+            }
+            else 
+            {
+                B[i] = 0;
+            }
+        }
+
+        for (int i = 0; i < size_a; i++)
+        {
+            Show(A[i]);
+        }
+
+        for (int i = 0; i < size_b; i++)
+        {
+            Show(B[i]);
+        }
+    }
+}
+
+void Matr2ScatterData(int& size1, int& size2, int& size3)
+{
+    int* t = new int[3];
+    if (r == 0)
+    {
+        na = (int)ceil((double)m / k);
+        nb = (int)ceil((double)q / k);
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (i == 0)
+                t[i] = na;
+            else if (i == 1)
+                t[i] = p;
+            else
+                t[i] = nb;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            Show(t[i]);
+        }
+    }
+
+    MPI_Bcast(t, 3, MPI_INT, 0, MPI_COMM_WORLD);
+    for (int i = 0; i < 3; i++)
+    {
+        if (i == 0)
+            na = t[i];
+        else if (i == 1)
+            p = t[i];
+        else
+            nb = t[i];
+    }
+
+    size1 = na * p;
+    size2 = nb * p;
+    size3 = na * nb * k;
+
+    a = new int[size1];
+    b = new int[size2];
+    c = new int[size3];
+
+    int* A, * B;
+    Create(A, B);
+
+    if (r != 0)
+        ;
+    else
+    {
+        int b_q = k * nb;
+        int size2 = p * b_q;
+    }
+
+    MPI_Scatter(A, na * p, MPI_INT, a, na * p, MPI_INT, 0, MPI_COMM_WORLD);
+
+    if (r == 0) 
+    {
+        MPI_Sendrecv(B, 1, MPI_COLS, 0, 0, b, size2, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+
+        for (int i = 1; i < k; i++)
+        {
+            MPI_Send(&B[nb * i], 1, MPI_COLS, i, 0, MPI_COMM_WORLD);
+        }
+    }
+    else
+    {
+        MPI_Recv(b, size2, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+    }
+
+    for (int i = 0; i < size3; ++i)
+    {
+        c[i] = 0;
+    }
+}
+
+void Solve()
+{
+    Task("MPI9Matr12");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    k = size;
+    r = rank;
+
+    if (r != 0)
+        ;
+    else
+    {
+        pt >> m;
+        pt >> p;
+        pt >> q;
+
+        int size1 = m * p;
+        int size2 = p * q;
+
+        a_ = new int[m * p];
+        b_ = new int[p * q];
+
+        for (int i = 0; i < m * p; i++)
+        {
+            pt >> a_[i];
+            Show(a_[i]);
+        }
+
+        for (int i = 0; i < p * q; i++)
+        {
+            pt >> b_[i];
+            Show(b_[i]);
+        }
+    }
+
+    int size1;
+    int size2;
+    int size3;
+
+    Matr2ScatterData(size1, size2, size3);
+
+    pt << na;
+    pt << p;
+    pt << nb;
+
+    for (int i = 0; i < size1; ++i)
+    {
+        Show(a[i]);
+        pt << a[i];
+    }
+    for (int i = 0; i < size2; ++i)
+    {
+        Show(b[i]);
+        pt << b[i];
+    }
+
+    for (int i = 0; i < size3; ++i)
+    {
+        Show(c[i]);
+        pt << c[i];
+    }
+
+}

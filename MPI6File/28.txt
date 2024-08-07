@@ -1,0 +1,51 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI6File28");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    char name[12];
+    if (rank == 0)
+    {
+        pt >> name;
+    }
+    MPI_Bcast(name, 12, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+    MPI_File f;
+    MPI_File_open(MPI_COMM_WORLD, name, MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &f);
+
+    MPI_Status s;
+
+    int N;
+    pt >> N;
+
+    double* A = new double[size / 2];
+    for (int i = 0; i < size / 2; i++)
+    {
+        pt >> A[i];
+    }
+
+    MPI_Datatype t;
+    char c[8] = "native";
+
+    //Show(sizeof(A));
+    MPI_Type_vector(size/2, 1, 2 * (size/2), MPI_DOUBLE, &t);
+    MPI_File_set_view(f, sizeof(double)*(N - 1), MPI_DOUBLE, t, c, MPI_INFO_NULL);
+
+    for (int i = 0; i < size/2; i++)
+    {
+        Show(A[i]);
+    }
+
+    MPI_File_write_all(f, A, size / 2, MPI_DOUBLE, &s);
+
+    MPI_File_close(&f);
+}

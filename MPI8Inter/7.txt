@@ -1,0 +1,68 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI8Inter7");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_Comm comm,new_comm1,new_comm2;
+    MPI_Comm peer;
+    MPI_Comm_dup(MPI_COMM_WORLD, &peer);
+
+    int C;
+    pt >> C;
+
+    MPI_Comm_split(MPI_COMM_WORLD, rank < size / 2 ? 0 : 1, rank, & comm);
+    int local_rank;
+    MPI_Comm_rank(comm, &local_rank);
+    Show(local_rank);
+    pt << local_rank;
+
+    if (rank < size / 2)
+    {
+        MPI_Intercomm_create(comm, 0, peer, size / 2, 100, &new_comm1);
+    }
+    else
+    {
+        MPI_Intercomm_create(comm, 0, peer, 0, 100, &new_comm1);
+    }
+
+    int new_size, local_size;
+
+    MPI_Comm_split(new_comm1, C, size - 1 - rank, &new_comm2);
+    MPI_Comm_rank(new_comm2, &local_rank);
+    MPI_Comm_size(new_comm2, &local_size);
+    MPI_Comm_remote_size(new_comm2, &new_size);
+
+    if (C == 1 && local_size > 1)
+    {
+        int X;
+        pt >> X;
+        pt << local_rank;
+        MPI_Send(&X, 1, MPI_INT, 0, 0, new_comm2);
+        int B[1];
+        MPI_Recv(B, 1, MPI_INT, 0, 0, new_comm2, MPI_STATUSES_IGNORE);
+        pt << B[0];
+    }
+
+    if (C == 1 && local_size == 1)
+    {
+        int* A = new int[new_size];
+        for (int i = 0; i < new_size; i++)
+        {
+            pt >> A[i];
+            int B[1];
+            MPI_Recv(B, 1, MPI_INT, i, 0, new_comm2, MPI_STATUSES_IGNORE);
+            pt << B[0];
+            MPI_Send(&A[i], 1, MPI_INT, i, 0, new_comm2);
+        }
+    }
+
+}

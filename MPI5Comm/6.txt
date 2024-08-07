@@ -1,0 +1,39 @@
+#include "pt4.h"
+#include "mpi.h"
+
+void Solve()
+{
+    Task("MPI5Comm6");
+    int flag;
+    MPI_Initialized(&flag);
+    if (flag == 0)
+        return;
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    int K;
+    MPI_Comm new_comm;
+    pt >> K;
+    MPI_Comm_split(MPI_COMM_WORLD, K > 0 ? 1 : MPI_UNDEFINED, rank, &new_comm);
+    if (new_comm == MPI_COMM_NULL)
+        return;
+
+    double a;
+    double* aa = new double[K+1];
+    if (rank == 0)
+    {
+        for (int i = 1; i < K+1; i++)
+        {
+            pt >> a;
+            aa[i] = a;
+        }
+    }
+
+    double b[1];
+    MPI_Scatter(aa, 1, MPI_DOUBLE, b, 1, MPI_DOUBLE, 0, new_comm);
+    if (rank != 0)
+    {
+        pt << b[0];
+    }
+}
