@@ -1,0 +1,18 @@
+#include <windows.h>
+#pragma hdrstop
+#include "pt4.h"
+#include <fstream>
+#include <algorithm>
+typedef ptin_iterator<char> ptin;
+
+using namespace std;
+
+void Solve()
+{
+    Task("STL1Iter17");
+    string s;
+    pt >> s;
+    ofstream os(s);
+    transform(ptin(0), ptin(), ostream_iterator<int>(os, " "),[](char c){ return 2 * c; }); 
+
+}

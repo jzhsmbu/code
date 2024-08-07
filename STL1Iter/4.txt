@@ -1,0 +1,20 @@
+#include <vector>
+#include <windows.h>
+#pragma hdrstop
+#include "pt4.h"
+#include <fstream>
+#include <algorithm>
+
+typedef ptin_iterator<double> ptin;
+typedef ptout_iterator<double> ptout;
+
+using namespace std;
+
+void Solve()
+{
+    Task("STL1Iter4");
+    vector<double>n1(ptin(0),ptin());
+    //vector<double>n2();
+    copy(n1.begin(),n1.end(),ptout());
+
+}

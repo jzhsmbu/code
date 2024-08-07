@@ -1,0 +1,23 @@
+#include <windows.h>
+#pragma hdrstop
+#include "pt4.h"
+#include <fstream>
+#include <algorithm>
+typedef ptin_iterator<int> ptin;
+typedef ptout_iterator<int> ptout;
+
+using namespace std;
+
+void Solve()
+{
+    Task("STL1Iter9");
+    string name;
+    pt >> name;
+    ifstream os(name);   
+    istream_iterator<int> iit(os);
+    istream_iterator<int> eos;
+    int num=1;
+    remove_copy_if(iit , eos , ptout() ,[&num](int e){ return num++
+  % 2 == 0; });
+
+}

@@ -1,0 +1,17 @@
+#include <vector>
+#include "pt4.h"
+#include <fstream>
+#include <algorithm>
+
+typedef ptin_iterator<char> ptin;
+typedef ptout_iterator<char> ptout;
+
+using namespace std;
+
+
+void Solve()
+{
+    Task("STL1Iter16");
+    vector<char> c (ptin(0),ptin());
+    replace_copy_if(c.begin(), c.end(), ptout() , [](char m){return (m>='0' && m<='9'); }, '_');
+}

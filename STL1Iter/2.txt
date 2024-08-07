@@ -1,0 +1,27 @@
+#include <iterator>
+#include "pt4.h"
+#include <fstream>
+#include <algorithm>
+typedef ptin_iterator<double> ptin;
+
+using namespace std;
+
+bool f(double e)
+  {
+         return e > 0;
+  }
+
+void Solve()
+{
+    Task("STL1Iter2");
+    string name;
+    pt >> name;
+    ifstream os(name);   
+    istream_iterator<double> iit1(os);
+    //Show(iit1);
+    istream_iterator<double> eos;
+    int m=count_if (iit1,eos,f);
+    pt << m;
+    
+
+}

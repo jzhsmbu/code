@@ -1,0 +1,26 @@
+#include <iterator>
+#include "pt4.h"
+#include <fstream>
+#include <algorithm>
+using namespace std;
+
+void Solve()
+{
+    Task("STL1Iter11");
+    string name1,name2;
+    pt >> name1 >> name2;
+    ifstream os1(name1);
+	ofstream os2(name2);   
+    istream_iterator<int> in(os1);
+    istream_iterator<int> eos;
+    ostream_iterator<int> out(os2,"\n");
+    for(;in != eos;in++)
+    {
+    	Show(*in);
+    	if(*in!=0)
+    	{
+    	    *out=*in;	
+		}   	
+	}
+
+}
