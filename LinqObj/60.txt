@@ -1,0 +1,44 @@
+// File: "LinqObj60"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqObj60");
+            var res = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        math = int.Parse(s[2]),
+                        rus = int.Parse(s[3]),
+                        info = int.Parse(s[4]),
+                        school = int.Parse(s[5])
+                    };
+                })
+                .GroupBy(e => e.school,
+                (k, ee) => new
+                {
+                    school = k,
+                    math = ee.Sum(e => e.math) / ee.Count(),
+                    rus = ee.Sum(e => e.rus) / ee.Count(),
+                    info = ee.Sum(e => e.info) / ee.Count()
+                })
+                .OrderByDescending(e => e.school)
+                .Select(e => e.school + " " + e.math + " " + e.rus + " " + e.info)
+                .DefaultIfEmpty()
+                .Show();
+
+            File.WriteAllLines(GetString(), res.ToArray());
+        }
+    }
+}

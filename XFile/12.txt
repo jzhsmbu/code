@@ -1,0 +1,46 @@
+// File: "XFile12"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XFile12");
+            string s1, s2, s3;
+            int x;
+            s1 = GetString();
+            s2 = GetString();
+            s3 = GetString();
+
+            FileStream f1 = new FileStream(s1, FileMode.OpenOrCreate, FileAccess.Read);
+            FileStream f2 = new FileStream(s2, FileMode.OpenOrCreate, FileAccess.Write);
+            FileStream f3 = new FileStream(s3, FileMode.OpenOrCreate, FileAccess.Write);
+
+            BinaryReader b1 = new BinaryReader(f1);
+            BinaryWriter b2 = new BinaryWriter(f2);
+            BinaryWriter b3 = new BinaryWriter(f3);
+
+            while(b1.BaseStream.Position<b1.BaseStream.Length)
+            {
+                x = b1.ReadInt32();
+                //Show(x);
+                if (x % 2 == 0)
+                    b2.Write(x);
+                else
+                    b3.Write(x);
+            }
+
+          
+            f1.Close();
+            f2.Close();
+            f3.Close();
+        }
+    }
+}

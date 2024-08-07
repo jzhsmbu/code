@@ -1,0 +1,54 @@
+// File: "XString23"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString23");
+            string s;
+            string s1 = "";
+            int number = 0;
+            s = GetString();
+            s = s.Insert(0, "+");
+            for(int i=s.Length-1;i>=0;i--)
+            {
+                if(s[i]>='0' && s[i]<='9')
+                {
+                    s1 = s1 + s[i];
+                                      
+                }
+                else if(s[i]=='+')
+                {
+                    //Show(s1);
+                    string s2 = "";
+                    for(int p=s1.Length-1;p>=0;p--)
+                    {
+                        s2 += s1[p];
+                    }
+                    number = number+int.Parse(s2);
+                    s1 = "";
+                }
+                else
+                {
+                    //Show(s1);
+                    string s2 = "";
+                    for (int p = s1.Length - 1; p >= 0; p--)
+                    {
+                        s2 += s1[p];
+                    }
+                    number = number - int.Parse(s2);       
+                    s1 = "";
+                }
+
+            }
+            Put(number);
+        }
+    }
+}

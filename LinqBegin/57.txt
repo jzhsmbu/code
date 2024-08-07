@@ -1,0 +1,30 @@
+// File: "LinqBegin57"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqBegin57");
+            //var num = GetEnumerableInt();
+            //var res = num.GroupBy(x => Math.Abs(x) % 10);
+            //Show(res);
+            //var res1 = num.Take(0);
+            //foreach (var item in res)
+            //{
+            //    //ShowLine(item);
+            //    res1 = item.OrderByDescending(x => x).Take(1).Union(res1);
+            //}
+            //res1.OrderBy(x => Math.Abs(x) % 10).Put();
+
+            GetEnumerableInt().GroupBy(x => Math.Abs(x)%10).Select(x => x.Max()).Show().OrderBy(x => Math.Abs(x)%10).Put();
+
+        }
+    }
+}

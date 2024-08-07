@@ -1,0 +1,48 @@
+// File: "LinqXml86"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Xml.Linq;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqXml86");
+            string name = GetString();
+            XDocument d = XDocument.Load(name);
+            XNamespace ns = d.Root.Name.Namespace;
+
+            var a = d.Root.Elements()
+                .Select(e =>
+                {
+                    return new
+                    {
+                        name = e.Attribute("name").Value.Replace(" ","_"),
+                        cla = e.Attribute("class").Value,
+                        mark = "mark" + e.Element(ns + "info").Attribute("mark").Value,
+                        subject = e.Element(ns + "info").Attribute("subject").Value
+                    };
+                }).Show();
+
+            string[] mark = { "mark2", "mark3", "mark4", "mark5" };
+            d.Root.ReplaceNodes(a.OrderBy(e => e.name)
+                .ThenByDescending(e => e.mark)
+                .ThenBy(e => e.subject)
+                .GroupBy(e => e.name,
+                (k, ee) => new XElement(ns + k,
+                new XAttribute("class", ee.Select(c => c.cla).First()),
+                ee.GroupJoin(mark, e1 => e1.mark, e2 => e2,
+                (e1, ee2) => new XElement(ns + e1.mark,
+                new XAttribute("subject", e1.subject))))));
+
+
+            d.Save(name);
+        }
+    }
+}

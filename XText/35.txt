@@ -1,0 +1,63 @@
+// File: "XText35"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XText35");
+            string s1;
+            s1 = GetString();
+            string s2="XText35";
+            string textline;
+            int n = 0;
+
+            StreamReader r1 = new StreamReader(s1);
+            StreamWriter r2 = new StreamWriter(s2);
+
+
+            while(r1.Peek()>=0)
+            {
+                textline = r1.ReadLine();
+                if (textline.Length == 0)
+                {
+                    r2.Write(textline);
+                    r2.Write('\n');
+                }
+
+                else if ((textline.Length) % 2 == 0)
+                {
+                    int count = 25 - (textline.Length / 2);
+                    for (int i = 0; i < count; i++)
+                        textline = textline.Insert(0, " ");
+                    r2.Write(textline);
+                    r2.Write('\n');
+
+                }
+                else
+                {
+                    int count = 25 - ((textline.Length + 1) / 2) + 1;
+                    for (int i = 0; i < count; i++)
+                        textline = textline.Insert(0, " ");
+                    r2.Write(textline);
+                    r2.Write('\n');
+                }
+
+
+            }
+
+            r1.Close();
+            r2.Close();
+            File.Delete(s1);
+            File.Move(s2, s1);
+
+        }
+    }
+}

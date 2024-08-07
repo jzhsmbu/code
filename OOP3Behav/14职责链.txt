@@ -1,0 +1,213 @@
+// File: "OOP3Behav14"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Request
+        {
+            public abstract string ToStr();
+        }
+
+        //Implement the RequestA and RequestB descendant classes
+        public class RequestA : Request
+        {
+            int param;
+            public RequestA(int param)
+            {
+                this.param = param;
+            }
+            public int GetParam()
+            {
+                return param;
+            }
+            public override string ToStr()
+            {
+                return "A:" + param;
+            }
+        }
+        public class RequestB : Request
+        {
+            string param;
+            public RequestB(string param)
+            {
+                this.param = param;
+            }
+            public string GetParam()
+            {
+                return param;
+            }
+            public override string ToStr()
+            {
+                return "B:" + param;
+            }
+        }
+
+        public class Handler
+        {
+            Handler successor;
+            public Handler(Handler successor)
+            {
+                this.successor = successor;
+            }
+            public virtual void HandleRequest(Request req)
+            {
+                // Implement the method
+                if (successor!=null)
+                {
+                    successor.HandleRequest(req);
+                }
+                else
+                {
+                    Put("Request " + req.ToStr() + " not processed");
+                }
+
+            }
+        }
+
+        // Implement the HandlerA and HandlerB descendant classes
+        public class HandlerA:Handler
+        {
+            int id;
+            int param1, param2;
+            Handler successor;
+            Request req;
+            public HandlerA(Handler successor, int id, int param1, int param2):base(successor)//调用的是需要参数的构造方法，需要传值给它.使用base关键字
+            {
+                this.successor = successor;
+                this.id = id;
+                this.param1 = param1;
+                this.param2 = param2;
+            }
+            public override void HandleRequest(Request req)
+            {
+                int num;
+                string s=req.ToStr();
+                //Show(s);
+                if (s[0]=='A')
+                {
+                    string str=s.Substring(2);
+                    //Show(s);
+                    num=int.Parse(str);
+                    if(num>=param1 && num<=param2)
+                    {
+                        Put("Request " + s + " processed by handler " + id.ToString());
+                    }
+                    else
+                    {
+                        base.HandleRequest(req);//调用基类的HandleRequest方法
+                    }
+                }
+                else
+                {
+                    base.HandleRequest(req);
+                }
+
+            }
+
+        }
+        public class HandlerB:Handler
+        {
+            int id;
+            string param1, param2;
+            Handler successor;
+            Request req;
+            public HandlerB(Handler successor,int id,string param1,string param2):base(successor)
+            {
+                this.successor = successor;
+                this.id = id;
+                this.param1 = param1;
+                this.param2 = param2;
+            }
+            public override void HandleRequest(Request req)
+            {
+                string num;
+                string s = req.ToStr();
+                if (s[0] == 'B')
+                {
+                    num = s.Substring(2);
+                    if (String.CompareOrdinal(num,param1)>=0 && String.CompareOrdinal(num,param2)<=0)
+                    {
+                        Put("Request " + s + " processed by handler " + id.ToString());
+                    }
+                    else
+                    {
+                        base.HandleRequest(req);
+                    }
+                }
+                else
+                {
+                    base.HandleRequest(req);
+                }
+            }
+        }
+
+        public class Client
+        {
+            Handler h;
+            public Client(Handler h)
+            {
+                this.h = h;
+            }
+            public void SendRequest(Request req)
+            {
+                h.HandleRequest(req);
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP3Behav14");
+            int N;
+            N = GetInt();
+            char c;
+            int x1,x2;
+            string s1, s2;
+            var H = new Handler(null);
+
+            for (int i = 0; i < N; i++)
+            {
+                c=GetChar();
+                if(c=='A')
+                {
+                    x1 = GetInt();
+                    x2 = GetInt();
+                    H = new HandlerA(H, i, x1, x2);
+                }
+                else
+                {
+                    s1=GetString();
+                    s2=GetString();
+                    H=new HandlerB(H, i, s1, s2);
+                }
+
+            }
+            int K;
+            K = GetInt();
+            char c1;
+            int x3;
+            string s3;
+            var C = new Client(H);
+
+            for(int i = 0; i < K; i++)
+            {
+                c1= GetChar();
+                if(c1=='A')
+                {
+                    x3 = GetInt();
+                    C.SendRequest(new RequestA(x3));
+                }
+                else
+                {
+                    s3=GetString();
+                    C.SendRequest(new RequestB(s3));
+                }
+            }
+        }
+    }
+}

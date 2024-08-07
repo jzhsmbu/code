@@ -1,0 +1,27 @@
+// File: "LinqBegin47"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static int FindFirst(int x)
+        {
+            if (x < 10)
+                return x;
+            else
+                return FindFirst(x / 10);
+        }
+        public static void Solve()
+        {
+            Task("LinqBegin47");
+            var res1 = GetEnumerableInt();
+            var res2 = GetEnumerableInt().OrderBy(x => x.ToString());
+            res1.Join(res2, x => x%10, y => FindFirst(y), (x, y) => x + ":" + y).Put();
+        }
+    }
+}

@@ -1,0 +1,231 @@
+// File: "OOP3Behav7"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Aggregate
+        {
+            public abstract Iterator CreateIterator();
+        }
+
+        // Implement the ConcreteAggregateA, ConcreteAggregateB
+        //   and ConcreteAggregateC descendant classes
+        public class ConcreteAggregateA : Aggregate
+        {
+            public int data;
+            public int divied = 1;
+            public ConcreteAggregateA(int data)
+            {
+                this.data = data;
+            }
+            public override Iterator CreateIterator()
+            {
+                return new ConcreteIteratorA(this);
+            }
+        }
+        public class ConcreteAggregateB : Aggregate
+        {
+            public string data;
+            public int index = 0;
+            public ConcreteAggregateB(string data)
+            {
+                this.data = data;
+            }
+            public override Iterator CreateIterator()
+            {
+                return new ConcreteIteratorB(this);
+            }
+        }
+        public class ConcreteAggregateC : Aggregate
+        {
+            public int divied=1;
+            public int index = 0;
+            public List<int> L = new List<int>();
+            public ConcreteAggregateC(List<int> L)
+            {
+                this.L = L;
+            }
+            public override Iterator CreateIterator()
+            {
+                return new ConcreteIteratorC(this);
+            }
+        }
+
+        public abstract class Iterator
+        {
+            public abstract void First();
+            public abstract void Next();
+            public abstract bool IsDone();
+            public abstract int CurrentItem();
+        }
+
+        // Implement the ConcreteIteratorA, ConcreteIteratorB
+        //   and ConcreteIteratorC descendant classes
+        public class ConcreteIteratorA:Iterator
+        {
+            ConcreteAggregateA aggregate;
+            public ConcreteIteratorA(ConcreteAggregateA aggregate)
+            {
+                this.aggregate=aggregate;
+            }
+            public override void First()
+            {
+                aggregate.divied = 1;
+            }
+            public override void Next()
+            {
+                aggregate.divied = aggregate.divied*10;
+            }
+            public override bool IsDone()
+            {
+                return Convert.ToBoolean(aggregate.data) && Convert.ToBoolean(aggregate.data / aggregate.divied == 0) || !Convert.ToBoolean(aggregate.data) && Convert.ToBoolean(aggregate.divied == 10);
+            }
+            public override int CurrentItem()
+            {
+                return Math.Abs((aggregate.data / aggregate.divied) % 10);
+            }
+
+        }
+        public class ConcreteIteratorB : Iterator
+        {
+            ConcreteAggregateB aggregate;
+            public ConcreteIteratorB(ConcreteAggregateB aggregate)
+            {
+                this.aggregate = aggregate;
+            }
+            public override void First()
+            {
+                aggregate.index = aggregate.data.Length - 1;
+                while(aggregate.index>=0 && (aggregate.data[aggregate.index]>='0' && aggregate.data[aggregate.index]<='9')==false)
+                {
+                    aggregate.index--;
+                }
+            }
+            public override void Next()
+            {
+                aggregate.index--;
+                while(aggregate.index >= 0 && (aggregate.data[aggregate.index] >= '0' && aggregate.data[aggregate.index] <= '9') == false)
+                {
+                    aggregate.index--;
+                }
+            }
+            public override bool IsDone()
+            {
+                if (aggregate.index < 0)
+                    return true;
+                else
+                    return false;
+            }
+            public override int CurrentItem()
+            {
+                return aggregate.data[aggregate.index]-'0';
+            }
+        }
+        public class ConcreteIteratorC:Iterator
+        {
+            ConcreteAggregateC aggregate;
+            public ConcreteIteratorC(ConcreteAggregateC aggregate)
+            {
+                this.aggregate = aggregate;
+            }
+            public override void First()
+            {
+                aggregate.index = aggregate.L.Count - 1;
+                aggregate.divied = 1;
+            }
+            public override void Next()
+            {
+                aggregate.divied = aggregate.divied*10;
+                int data = aggregate.L[aggregate.index];
+                int divied = aggregate.divied;
+                if(Convert.ToBoolean(data) && data / divied == 0 || !Convert.ToBoolean(data) && divied == 10)
+                {
+                    aggregate.index--;
+                    aggregate.divied = 1;
+                }
+            }
+            public override bool IsDone()
+            {
+                if(aggregate.index<0)
+                    return true;
+                else
+                    return false;
+            }
+            public override int CurrentItem()
+            {
+                return Math.Abs(aggregate.L[aggregate.index]/aggregate.divied % 10);
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP3Behav7");
+            int N;
+            N = GetInt();
+            char c;
+            int x;
+            string s;
+            var L1 = new List<Aggregate>();
+            Aggregate A;
+
+            for (int i = 0; i < N; i++)
+            {
+                c = GetChar();
+                if (c == 'A')
+                {
+                    x = GetInt();
+                    A = new ConcreteAggregateA(x);
+                    L1.Add(A);
+                }
+                else if (c == 'B')
+                {
+                    s = GetString();
+                    A = new ConcreteAggregateB(s);
+                    L1.Add(A);
+                }
+                else
+                {
+                    int K;
+                    K = GetInt();
+                    List<int> L2 = new List<int>();
+
+                    for (int j = 0; j < K; j++)
+                    {
+                        int x2;
+                        x2 = GetInt();
+                        L2.Add(x2);
+                    }
+                    A = new ConcreteAggregateC(L2);
+                    L1.Add(A);
+                }
+            }
+            for (int i = L1.Count - 1; i >= 0; i--)
+            {
+                List<int> L3 = new List<int>();
+                var it = L1[i].CreateIterator();
+                for (it.First(); !it.IsDone(); it.Next())
+                {
+                    L3.Add(it.CurrentItem());
+                }
+                int count = 0;
+                foreach (int m in L3)
+                {
+                    count += m;
+                }
+                Put(count);
+                foreach(int m in L3)
+                {
+                    Put(m);
+                }
+
+            }
+
+        }
+    }
+}

@@ -1,0 +1,48 @@
+// File: "LinqObj15"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqObj15");
+            var res = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        years = int.Parse(s[1]),
+                        people = s[2]
+                    };
+                })
+                .GroupBy(e => e.years, (k, ee) => new
+                {
+                    years = k,
+                    count = ee.Select(c => c.people).Count()
+                })
+                .OrderBy(e => e.years);
+
+            var max = res.Select(e => e.count).Max();
+
+            var res1 = res.Where(e => e.count == max)
+                .GroupBy(e => e.count, (k, ee) => new
+                {
+                    count = k,
+                    years = ee.Select(c => c.years)
+                })
+                .Select(e => e.count + e.years.Aggregate("",(a, d) => a + "\n" + d.ToString()))
+                .Show();
+
+            File.WriteAllLines(GetString(), res1.ToArray());
+
+        }
+    }
+}

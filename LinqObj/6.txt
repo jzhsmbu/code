@@ -1,0 +1,62 @@
+// File: "LinqObj6"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        // To read strings from the source text file into
+        // a string sequence (or array) s, use the statement:
+        //   s = File.ReadLines(GetString());
+        // To write the sequence s of IEnumerable<string> type
+        // into the resulting text file, use the statement:
+        //   File.WriteAllLines(GetString(), s);
+        // When solving tasks of the LinqObj group, the following
+        // additional methods defined in the taskbook are available:
+        // (*) Show() and Show(cmt) (extension methods) - debug output
+        //       of a sequence, cmt - string comment;
+        // (*) Show(e => r) and Show(cmt, e => r) (extension methods) -
+        //       debug output of r values, obtained from elements e
+        //       of a sequence, cmt - string comment.
+
+        public static void Solve()
+        {
+            Task("LinqObj6");
+
+            string[] month = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" };
+            var res = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        hours = int.Parse(s[1]),
+                        month = int.Parse(s[3])
+                    };
+                });
+
+            var res1 = month.GroupJoin(res, s => s, e => e.month.ToString(), (s1,ee1) => ee1.Sum(e => e.hours)+ " " + s1)
+                .DefaultIfEmpty()
+                .Select(e =>
+                {
+                    string [] s = e.Split(' ');
+                    return new
+                    {
+                        month = int.Parse(s[1]),
+                        hours = int.Parse(s[0])
+                    };
+                })
+                .OrderByDescending(e =>e.hours)
+                .ThenBy(e => e.month)
+                .Select(e => e.hours + " " + e.month)
+                .Show();
+
+            File.WriteAllLines(GetString(), res1.ToArray());
+        }
+    }
+}

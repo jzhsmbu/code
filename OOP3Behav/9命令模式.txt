@@ -1,0 +1,216 @@
+// File: "OOP3Behav9"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static class OperationA
+        {
+            public static void ActionA()
+            {
+                Put("+A");
+            }
+            public static void UndoActionA()
+            {
+                Put("-A");
+            }
+        }
+
+        public static class OperationB
+        {
+            public static void ActionB()
+            {
+                Put("+B");
+            }
+            public static void UndoActionB()
+            {
+                Put("-B");
+            }
+        }
+
+        public static class OperationC
+        {
+            public static void ActionC()
+            {
+                Put("+C");
+            }
+            public static void UndoActionC()
+            {
+                Put("-C");
+            }
+        }
+
+        public abstract class Command
+        {
+            public abstract void Execute();
+            public abstract void Unexecute();
+        }
+
+        // Implement the CommandA, CommandB, CommandC
+        //   and MacroCommand descendant classes
+
+        public class CommandA:Command
+        {
+            public override void Execute()
+            {
+                OperationA.ActionA();
+            }
+            public override void Unexecute()
+            {
+                OperationA.UndoActionA();
+            }
+        }
+        public class CommandB: Command
+        {
+            public override void Execute()
+            {
+                OperationB.ActionB();
+            }
+            public override void Unexecute()
+            {
+                OperationB.UndoActionB();
+            }
+        }     
+
+        public class CommandC:Command
+        {
+            public override void Execute()
+            {
+                OperationC.ActionC();
+            }
+            public override void Unexecute()
+            {
+                OperationC.UndoActionC();
+            }
+        }
+        public class MacroCommand : Command
+        {
+            List<Command> L=new List<Command>();
+            public MacroCommand(Command c1, Command c2)
+            {
+                L.Add(c1);
+                L.Add(c2);
+            }
+            public override void Execute()
+            {
+                for (int i = 0; i < L.Count; i++)
+                {
+                    L[i].Execute();
+                }
+            }
+            public override void Unexecute()
+            {
+                for (int i = L.Count - 1; i >= 0; i--)
+                {
+                    L[i].Unexecute();
+                }
+            }
+        }
+
+        public class Menu
+        {
+            // Add required fields
+            List<Command> availcmds=new List<Command>();
+            List<Command> lastcmds=new List<Command>();
+            int undoIndex;
+            public Menu(Command cmd1, Command cmd2)
+            {
+                // Implement the constructor
+                Command a = cmd1;
+                Command b = cmd2;
+                var c = new MacroCommand(a, b);
+                availcmds.Add(a);
+                availcmds.Add(b);
+                availcmds.Add(c);
+                undoIndex = -1;
+            }
+            public void Invoke(int cmdIndex)
+            {
+                // Implement the method
+                availcmds[cmdIndex].Execute();
+                lastcmds.RemoveRange(undoIndex + 1, lastcmds.Count-undoIndex-1);
+                lastcmds.Add(availcmds[cmdIndex]);
+                undoIndex=lastcmds.Count - 1;
+            }
+            public void Undo(int count)
+            {
+                // Implement the method
+                int i = undoIndex;
+                for (i=undoIndex; (i >= 0 && count > 0) ; i--)
+                {
+                    lastcmds[i].Unexecute();
+                    count--;
+                }
+                undoIndex = i;
+            }
+            public void Redo(int count)
+            {
+                // Implement the method
+                int i = undoIndex + 1;
+                for (i=undoIndex+1; (i < lastcmds.Count && count > 0) ; i++)
+                {
+                    lastcmds[i].Execute();
+                    count--;
+                }
+                undoIndex = i - 1;
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP3Behav9");
+            char c1, c2;
+            c1 = GetChar();
+            c2=GetChar();
+            int n;
+            n=GetInt();
+            Command C1=null;
+            Command C2=null;
+
+            switch(c1)
+            {
+                case 'A':
+                    C1 = new CommandA();
+                    break;
+                case 'B':
+                    C1 = new CommandB();
+                    break;
+                case 'C':
+                    C1 = new CommandC();
+                    break;
+            }
+            switch (c2)
+            {
+                case 'A':
+                    C2 = new CommandA();
+                    break;
+                case 'B':
+                    C2 = new CommandB();
+                    break;
+                case 'C':
+                    C2 = new CommandC();
+                    break;
+            }
+
+            var M = new Menu(C1, C2);
+
+            for (int i = 0; i < n; i++)
+            {
+                string s;
+                s = GetString();
+                if (s[0] == 'I')
+                    M.Invoke(s[1] - '0');
+                else if (s[0] == 'U')
+                    M.Undo(s[1] - '0');
+                else
+                    M.Redo(s[1] - '0');
+            }
+
+        }
+    }
+}

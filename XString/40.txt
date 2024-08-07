@@ -1,0 +1,36 @@
+// File: "XString40"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString40");
+            string s1;
+            s1 = GetString();
+            string s2 = " ", s3 = "";
+            int foundfirst = 0, foundlast = 0;
+            foundfirst = s1.IndexOf(s2);
+            foundlast = s1.LastIndexOf(s2);
+            //Show(foundfirst);
+            //Show(foundlast);
+            if (foundfirst == foundlast)
+                Put(s3);
+            else
+            {
+                int len = s1.Length;
+                s1 = s1.Remove(foundlast, len - foundlast);
+                s1 = s1.Remove(0, foundfirst + 1);
+                Put(s1);
+            }
+
+            
+        }
+    }
+}

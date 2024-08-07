@@ -1,0 +1,20 @@
+// File: "LinqBegin50"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqBegin50");
+            var res1 = GetEnumerableString();
+            var res2 = GetEnumerableString();
+            res1.GroupJoin(res2, x => x[0], y => y[0], (x, yy) => x + ":" + yy.Count()).Put();
+        }
+    }
+}

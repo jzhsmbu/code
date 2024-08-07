@@ -1,0 +1,32 @@
+// File: "XString30"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString30");
+            char c;
+            string s1,s2;
+            c = GetChar();
+            s1 = GetString();
+            s2 = GetString();
+            string s3 = "";
+            
+            for(int i=0;i<s1.Length;i++)
+            {
+                s3 = s3 + s1[i];
+                if(s1[i]==c)
+                    s3=s3.Insert(s3.Length, s2);                                                              
+            }
+
+            Put(s3);
+        }
+    }
+}

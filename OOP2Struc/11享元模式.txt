@@ -1,0 +1,135 @@
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Flyweight
+        {
+            public abstract char Show(bool state);
+        }
+
+        // Implement the ConcreteFlyweight
+        //   and UnsharedConcreteFlyweight descendant classes
+
+        public class ConcreteFlyweight : Flyweight
+        {
+            public ConcreteFlyweight() { }
+            public override char Show(bool state)
+            {
+                if (state == true)
+                    return 'A';
+                else
+                    return 'a';
+            }
+        }
+
+        public class UnsharedConcreteFlyweight : Flyweight
+        {
+            char inf;
+            public UnsharedConcreteFlyweight(char inf)
+            {
+                this.inf = inf;
+            }
+            public override char Show(bool state)
+            {
+                if (state == true)
+                    return Char.ToUpper(inf);
+                else
+                    return Char.ToLower(inf);
+            }
+        }
+
+        // Implement the FlyweightFactory and Client classes
+
+        public class FlyweightFactory
+        {
+            ConcreteFlyweight cf;
+            int ncount;
+            Flyweight fw;
+            public FlyweightFactory()
+            {
+                cf = null;
+                ncount = 0;
+            }
+            public Flyweight CreatFlyweight(char inf)
+            {
+                if (inf != 'A' && inf != 'a')
+                {
+                    ncount++;
+                    return new UnsharedConcreteFlyweight(inf);
+                }
+
+                else
+                {
+                    if (cf == null)
+                    {
+                        ncount++;
+                        cf = new ConcreteFlyweight();
+                        return cf;
+                    }
+                    else
+                        return cf;
+                }
+            }
+            public int GetCount()
+            {
+                return ncount;
+            }
+            public void DeleteFlyweight(Flyweight fw)
+            {
+                fw = null;
+            }
+
+        }
+            public class Client
+            {
+                FlyweightFactory f=new FlyweightFactory();
+                List<Flyweight> fw = new List<Flyweight>();
+                public Client() { }
+                public void MakeFlyweight(string inf)
+                {
+                    fw.Clear();
+                    for (int i = 0; i < inf.Length; i++)
+                    {
+                        fw.Add(f.CreatFlyweight(inf[i]));
+                    }
+                }
+                public string ShowFlyweights(bool state)
+                {
+                    string str = "";
+                    foreach (Flyweight i in fw)
+                    {
+                        str += i.Show(state);
+                    }
+                    return str;
+                }
+                public int GetFlyweightCount()
+                {
+                    return f.GetCount();
+                }
+            }
+
+            public static void Solve()
+            {
+                Task("OOP2Struc11");
+                string s;
+                var C=new Client();
+                int N = 5;
+                for (int i = 0; i < N; i++)
+                {
+                    s = GetString();
+                    C.MakeFlyweight(s);
+                    Put(C.ShowFlyweights(true));
+                    Put(C.ShowFlyweights(false));
+                    Put(C.GetFlyweightCount());
+                }
+
+            }
+        
+    }
+}

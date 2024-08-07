@@ -1,0 +1,67 @@
+// File: "XFile72"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static int Year(string s)
+        {
+            string s_year = s;
+            s_year = s_year.Substring(6, 4);
+            return int.Parse(s_year);
+        }
+       public static int Month(string s)
+        {
+            string s_month = s;
+            s_month = s_month.Substring(3, 2);
+            return int.Parse(s_month);
+        }
+        public static int Day(string s)
+        {
+            string s_day = s;
+            s_day = s_day.Substring(0, 2);
+            return int.Parse(s_day);
+        }
+        public static void Solve()
+        {
+            Task("XFile72");
+            string s;
+            s = GetString();
+            string s1;
+            string s2="";
+            int max_year = 0;
+            int max_month = 0;
+            int max_day = 0;
+
+            FileStream f1 = new FileStream(s, FileMode.OpenOrCreate, FileAccess.Read);
+            BinaryReader b1 = new BinaryReader(f1);
+
+            while(b1.PeekChar()>=0)
+            {
+                s1 = b1.ReadString();
+                //Show(s1);
+                if(Month(s1)>8 && Month(s1)<12)
+                {
+                    if(Year(s1) > max_year || (Year(s1) == max_year && Month(s1) > max_month) || (Year(s1) == max_year && Month(s1) == max_month && Day(s1) > max_day))
+                    {
+                        max_year = Year(s1);
+                        max_month = Month(s1);
+                        max_day = Day(s1);
+                        s2 = s1;
+                    }
+                }
+            }
+            if(s2!="")
+               s2 = s2.Remove(10);
+            //Show(s2);
+            Put(s2);
+            f1.Close();
+        }
+    }
+}

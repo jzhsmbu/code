@@ -1,0 +1,49 @@
+// File: "LinqObj48"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqObj48");
+            var res = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        street = s[1],
+                        brand = int.Parse(s[0]),
+                        company = s[3]
+                    };
+                });
+
+            var street = res.Select(e => e.street).Distinct().OrderBy(e => e);
+            var company = res.Select(e => e.company).Distinct().OrderBy(e => e);
+
+            var tmp = from e1 in street
+                      from e2 in company
+                      select new { street = e1, company = e2 };
+
+            var res1 = tmp.GroupJoin(res, e1 => e1.street + " " + e1.company, e2 => e2.street + " " + e2.company, (e1, ee2) => new
+            {
+                e1.street,
+                e1.company,
+                num = ee2.Select(e => e.brand).Count()
+            })
+                .OrderBy(e => e.street)
+                .ThenBy(e => e.company)
+                .Select(e => e.street + " " + e.company + " " + e.num)
+                .Show();
+
+            File.WriteAllLines(GetString(), res1.ToArray());
+        }
+    }
+}

@@ -1,0 +1,223 @@
+// File: "OOP3Behav17"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public class Context
+        {
+            // Add the constructor, required fields and methods
+            string [] names = new string[10];
+            int[] data=new int[10];
+            public Context()
+            {
+                for(int i = 0; i < 10; i++)
+                {
+                    char c =(char)('a' + i);
+                    names[i] = c.ToString();
+                    data[i] = 0;
+                }
+            }
+            public void SetVar(int ind,string name,int value)
+            {
+                names[ind] = name;
+                data[ind] = value;
+            }
+            public string GetName(int ind)
+            {
+                return names[ind];
+            }
+            public int GetValue(int ind)
+            {
+                return data[ind];
+            }
+        }
+
+        public abstract class AbstractExpression
+        {
+            public abstract string InterpretA(Context cont);
+            public abstract string InterpretB(Context cont);
+        }
+
+        // Implement the TermStr, NontermConcat, NontermIf
+        //   and NontermLoop descendant classes
+        public class TermStr :AbstractExpression
+        {
+            string s;
+            public TermStr(string s)
+            {
+                this.s = s;
+            }
+            public override string InterpretA(Context cont)
+            {
+                return s;
+            }
+            public override string InterpretB(Context cont)
+            {
+                return s;
+            }
+        }
+        public class NontermConcat:AbstractExpression
+        {
+            List<AbstractExpression> exp=new List<AbstractExpression>();
+            public NontermConcat(List<AbstractExpression> exp)
+            {
+                this.exp = exp;
+            }
+            public override string InterpretA(Context cont)
+            {
+                string s = "";
+                foreach(var e in exp)
+                {
+                    s=s+e.InterpretA(cont);
+
+                }
+                return s;
+            }
+            public override string InterpretB(Context cont)
+            {
+                string s = "";
+                foreach (var e in exp)
+                {
+                    s=s+e.InterpretB(cont);
+                }
+                return s;
+            }
+        }
+        public class NontermIf:AbstractExpression
+        {
+            AbstractExpression exp1;
+            AbstractExpression exp2;
+            int ind;
+            public NontermIf(AbstractExpression exp1,AbstractExpression exp2,int ind)
+            {
+                this.exp1 = exp1;
+                this.exp2 = exp2;
+                this.ind = ind;
+            }
+            public override string InterpretA(Context cont)
+            {
+                return "(" + cont.GetName(ind) + "?" + exp1.InterpretA(cont) + ":" + exp2.InterpretA(cont) + ")";
+            }
+            public override string InterpretB(Context cont)
+            {
+                if(cont.GetValue(ind)!=0)
+                {
+                    return exp1.InterpretB(cont);
+                }
+                else
+                {
+                    return exp2.InterpretB(cont);
+                }
+            }
+        }
+        public class NontermLoop:AbstractExpression
+        {
+            AbstractExpression exp;
+            int ind;
+            public NontermLoop(AbstractExpression exp,int ind)
+            {
+                this.exp = exp;
+                this.ind = ind;
+            }
+            public override string InterpretA(Context cont)
+            {
+                return "(" + cont.GetName(ind) + ":" + exp.InterpretA(cont) + ")";
+            }
+            public override string InterpretB(Context cont)
+            {
+                if(cont.GetValue(ind)>0)
+                {
+                    string s = "";
+                    for(int i=0;i<cont.GetValue(ind);i++)
+                    {
+                        s+=exp.InterpretB(cont);
+                    }
+                    return s;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP3Behav17");
+            int N;
+            N = GetInt();
+            List<AbstractExpression> L = new List<AbstractExpression>();
+
+            for(int i = 0; i < N; i++)
+            {
+                char c;
+                c=GetChar();
+                if(c=='C')
+                {
+                    int K;
+                    K = GetInt();
+                    List<AbstractExpression> L1=new List<AbstractExpression>();
+
+                    for(int j = 0; j < K; j++)
+                    {
+                        int x;
+                        x = GetInt();
+                        L1.Add(L[x]);
+                    }
+                    AbstractExpression exp = new NontermConcat(L1);
+                    L.Add(exp);
+                }
+                else if(c=='I')
+                {
+                    int x1,x2,x3;
+                    x1=GetInt();
+                    x2=GetInt();
+                    x3=GetInt();
+                    AbstractExpression exp=new NontermIf(L[x2],L[x3],x1);
+                    L.Add(exp);
+                }
+                else if(c=='L')
+                {
+                    int x1,x2;
+                    x1 = GetInt();
+                    x2 = GetInt();
+                    AbstractExpression exp = new NontermLoop(L[x2], x1);
+                    L.Add(exp);
+                }
+                else
+                {
+                    string s;
+                    s = GetString();
+                    AbstractExpression exp=new TermStr(s);
+                    L.Add(exp);
+                }
+            }
+
+            for(int i = 0; i < 3; i++)
+            {
+                int M;
+                M = GetInt();
+                Context C=new Context();
+
+                for(int j=0;j<M;j++)
+                {
+                    int ind;
+                    ind = GetInt();
+                    string name;                   
+                    name=GetString();
+                    int val;
+                    val = GetInt();
+                    C.SetVar(ind, name, val);
+                }
+                Put(L[L.Count - 1].InterpretA(C));
+                Put(L[L.Count - 1].InterpretB(C));
+            }
+        }
+    }
+}

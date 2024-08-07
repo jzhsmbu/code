@@ -1,0 +1,27 @@
+// File: "LinqXml13"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Xml.Linq;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqXml13");
+            XDocument d = XDocument.Load(GetString());
+            var e1 = d.Root.Attributes().Select(e => e.Name.LocalName).DefaultIfEmpty();
+
+            var e2 = d.Descendants().Attributes().Select(e => e.Name.LocalName).DefaultIfEmpty();
+
+            var res = e1 == null ? e1.Union(e2).Distinct() : e2.Distinct();
+            //Show(res);
+            Put(res);
+        }
+    }
+}

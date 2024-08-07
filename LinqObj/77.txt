@@ -1,0 +1,61 @@
+// File: "LinqObj77"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqObj77");
+            var B = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        art = s[0],
+                        code = s[1],
+                        country = s[2]
+                    };
+                });
+            var D = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        code = s[0],
+                        price = int.Parse(s[1]),
+                        shop = s[2]
+                    };
+                });
+
+            var res = B.Join(D, e1 => e1.code, e2 => e2.code, (e1, e2) => new
+            {
+                e1.art,
+                e1.country,
+                e2.code,
+                e2.shop
+            })
+                .GroupBy(e => e.art,
+                (k, ee) => new
+                {
+                    art = k,
+                    country = ee.Select(e => e.country).Distinct().Count(),
+                    shop = ee.Select(e => e.shop).Distinct().Count()
+                })
+                .OrderByDescending(e => e.shop)
+                .ThenBy(e => e.art)
+                .Select(e => e.shop + " " + e.art + " " + e.country)
+                .Show();
+
+            File.WriteAllLines(GetString(), res.ToArray());
+        }
+    }
+}

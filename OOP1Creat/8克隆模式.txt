@@ -1,0 +1,238 @@
+ // File: "OOP1Creat8"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class AbstractGraphic
+        {
+            public abstract AbstractGraphic Clone();
+            public abstract void ChangeLocation(int x1, int y1, int x2, int y2);
+            public abstract string Draw();
+        }
+
+        // Implement the Ellip, Line and Rect descendant classes
+
+        public class Ellip: AbstractGraphic
+        {
+            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            public override AbstractGraphic Clone()
+            {
+                return new Ellip();
+            }
+            public override void ChangeLocation(int x1, int y1, int x2, int y2)
+            {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+            }
+            public override string Draw()
+            {
+                return "Ellip" + "(" + this.x1 + "," + this.y1 +
+                "," + this.x2 + "," + this.y2 + ")";
+            }
+        }
+
+        public class Line : AbstractGraphic
+        {
+            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            public override AbstractGraphic Clone()
+            {
+                return new Line();
+            }
+            public override void ChangeLocation(int x1, int y1, int x2, int y2)
+            {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+            }
+            public override string Draw()
+            {
+                return "Line" + "(" + this.x1 + "," + this.y1 +
+                "," + this.x2 + "," + this.y2 + ")";
+            }
+        }
+
+        public class Rect : AbstractGraphic
+        {
+            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            public override AbstractGraphic Clone()
+            {
+                return new Rect();
+            }
+            public override void ChangeLocation(int x1, int y1, int x2, int y2)
+            {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+            }
+            public override string Draw()
+            {
+                return "Rect" + "(" + this.x1 + "," + this.y1 +
+                "," + this.x2 + "," + this.y2 + ")";
+            }
+        }
+
+
+        public class GraphEditor
+        {
+            // Add required fields
+            AbstractGraphic p1;
+            AbstractGraphic p2;
+            AbstractGraphic p;
+            AbstractGraphic[] a=new AbstractGraphic[100];
+            int m = 0;
+            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            int np;
+
+            public GraphEditor(AbstractGraphic p1, AbstractGraphic p2)
+            {
+                // Implement the constructor
+                this.p1 = p1;
+                this.p2 = p2;
+            }
+            public void AddGraphic(int np, int x1, int y1, int x2, int y2)
+            {
+                // Implement the method            
+                if (np == 1)
+                {
+                    AbstractGraphic p = p1.Clone();
+                    p.ChangeLocation(x1, y1, x2, y2);
+                    a[m] = p;                   
+                }
+                else
+                {
+                    AbstractGraphic p = p2.Clone();
+                    p.ChangeLocation(x1, y1, x2, y2);
+                    a[m] = p;
+                }
+                m++;
+            }
+            public string DrawAll()
+            {
+                string s="";
+                //Show(m);
+                for (int i = 0; i < m; i++)
+                {
+                    s += a[i].Draw();
+                    s += " ";
+                }
+                s = s.Remove(s.Length - 1);
+                //Show(s);
+                return s;
+                // Remove the previous statement and implement the method
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP1Creat8");
+            string P;
+            P=GetString();
+            int N;
+            N=GetInt();
+            int np, x1, y1, x2, y2;
+
+            if (P == "LR")
+            {
+                var G = new GraphEditor(new Line(), new Rect());
+                for (int j = 0; j < N; j++)
+                {
+                    np = GetInt();
+                    x1 = GetInt();
+                    y1 = GetInt(); 
+                    x2 = GetInt();
+                    y2 = GetInt();
+                    G.AddGraphic(np, x1, y1, x2, y2);
+                }
+
+               Put(G.DrawAll());
+            }
+            else if (P == "RL")
+            {
+                var G = new GraphEditor(new Rect(), new Line());
+                for (int i = 0; i < N; i++)
+                {
+                    np = GetInt();
+                    x1 = GetInt();
+                    y1 = GetInt();
+                    x2 = GetInt();
+                    y2 = GetInt();
+                    G.AddGraphic(np, x1, y1, x2, y2);
+                }
+
+                Put(G.DrawAll());
+            }
+            else if (P == "LE")
+            {
+                var G = new GraphEditor(new Line(), new Ellip());
+                for (int i = 0; i < N; i++)
+                {
+                    np = GetInt();
+                    x1 = GetInt();
+                    y1 = GetInt();
+                    x2 = GetInt();
+                    y2 = GetInt();
+                    G.AddGraphic(np, x1, y1, x2, y2);
+                }
+
+                Put(G.DrawAll());
+            }
+            else if (P == "EL")
+            {
+                var G = new GraphEditor(new Ellip(), new Line());
+                for (int i = 0; i < N; i++)
+                {
+                    np = GetInt();
+                    x1 = GetInt();
+                    y1 = GetInt();
+                    x2 = GetInt();
+                    y2 = GetInt();
+                    G.AddGraphic(np, x1, y1, x2, y2);
+                }
+
+                Put(G.DrawAll());
+            }
+            else if (P == "RE")
+            {
+                var G = new GraphEditor(new Rect(), new Ellip());
+                for (int i = 0; i < N; i++)
+                {
+                    np = GetInt();
+                    x1 = GetInt();
+                    y1 = GetInt();
+                    x2 = GetInt(); 
+                    y2 = GetInt();
+                    G.AddGraphic(np, x1, y1, x2, y2);
+                }
+
+                Put(G.DrawAll());
+            }
+            else
+            {
+                var G = new GraphEditor(new Ellip(), new Rect());
+                for (int i = 0; i < N; i++)
+                {
+                    np = GetInt();
+                    x1 = GetInt();
+                    y1 = GetInt();
+                    x2 = GetInt();
+                    y2 = GetInt();
+                    G.AddGraphic(np, x1, y1, x2, y2);
+                }
+
+               Put(G.DrawAll());
+            }
+
+
+        }
+    }
+}

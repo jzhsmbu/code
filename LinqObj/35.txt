@@ -1,0 +1,50 @@
+// File: "LinqObj35"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static int Entrance(int num)
+        {
+            return (num - 1) / 36 + 1;
+        }
+        public static void Solve()
+        {
+            Task("LinqObj35");
+            var res = File.ReadAllLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        money = double.Parse(s[0]),
+                        name = s[1],
+                        num = int.Parse(s[2])
+                    };
+                })
+                .Where(e => e.money!=0)
+                .DefaultIfEmpty();
+
+            var money1 = res.Where(e => Entrance(e.num) == 1 ).Select(e => e.money).DefaultIfEmpty().Average();
+            var money2 = res.Where(e => Entrance(e.num) == 2 ).Select(e => e.money).DefaultIfEmpty().Average();
+            var money3 = res.Where(e => Entrance(e.num) == 3 ).Select(e => e.money).DefaultIfEmpty().Average();
+            var money4 = res.Where(e => Entrance(e.num) == 4 ).Select(e => e.money).DefaultIfEmpty().Average();
+
+            var res1 = res.Where(e => (Entrance(e.num) == 1 && e.money >= money1) || (Entrance(e.num) == 2 && e.money >= money2) ||
+            (Entrance(e.num) == 3 && e.money >= money3) || (Entrance(e.num) == 4 && e.money >= money4))
+            .OrderBy(e => Entrance(e.num))
+            .ThenByDescending(e => e.money)
+            .Select(e => Entrance(e.num)+" "+e.money.ToString("F2")+" "+e.name+" "+e.num)
+            .Show();
+
+            File.WriteAllLines(GetString(), res1.ToArray());
+
+        }
+    }
+}

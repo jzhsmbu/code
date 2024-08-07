@@ -1,0 +1,42 @@
+// File: "XText43"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XText43");
+            double A,B,H,x;
+            int N;
+            string s;
+            A = GetDouble();
+            B = GetDouble();
+            N = GetInt();
+            s = GetString();
+
+            StreamWriter r = new StreamWriter(s);
+
+            H = (B - A) / N;
+            for (int i=0;i<=N;i++)
+            {
+                x = A + i * H;
+                double sinx = Math.Sin(x);
+                double cosx = Math.Cos(x);
+                r.Write(String.Format("{0,8}", x.ToString("0.0000")));
+                r.Write(String.Format("{0,12}",sinx.ToString("0.00000000")));
+                r.Write(String.Format("{0,12}",cosx.ToString("0.00000000")));
+                r.Write('\n');
+
+
+            }
+            r.Close();
+        }
+    }
+}

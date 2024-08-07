@@ -1,0 +1,28 @@
+// File: "LinqBegin29"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqBegin29");
+            int D, K;
+            D = GetInt();
+            K= GetInt();
+            int i = 0;
+            var num = GetEnumerableInt();
+            var res1 = num.TakeWhile(x => x <= D);
+            //Show(res1);
+            var res2 = num.SkipWhile(x => ++i < K);
+            //Show(res2);
+            res1.Union(res2).OrderByDescending(x => x).Put();
+
+        }
+    }
+}

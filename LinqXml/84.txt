@@ -1,0 +1,36 @@
+// File: "LinqXml84"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Xml.Linq;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqXml84");
+            string name = GetString();
+            XDocument d = XDocument.Load(name);
+            XNamespace ns = d.Root.Name.Namespace;
+
+            d.Root.ReplaceNodes(d.Root.Elements()
+                .OrderBy(e => int.Parse(e.Attribute("class").Value))
+                .ThenBy(e => e.Attribute("name").Value)
+                .ThenBy(e => e.Element(ns + "subject").Value)
+                .ThenBy(e => e.Element(ns + "mark").Value)
+                .Select(e => new XElement(ns + "class" + e.Attribute("class").Value,
+                new XAttribute("name", e.Attribute("name").Value),
+                new XAttribute("subject", e.Element(ns + "subject").Value),
+                e.Element(ns + "mark").Value)));
+
+
+            d.Save(name);
+                
+        }
+    }
+}

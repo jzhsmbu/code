@@ -1,0 +1,42 @@
+// File: "XString18"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString18");
+            string s;
+            string s1 = "";
+            char c1;
+            s = GetString();
+            for(int i=0;i<s.Length;i++)
+            {
+                if (s[i] >= 'a' && s[i] <= 'z')
+                {
+                    c1 =s[i];                
+                    s1 = s1 + char.ToUpper(c1);
+                }
+                    
+                else if (s[i] >= 'A' && s[i] <= 'Z')
+                {
+                    c1 = s[i];
+                    s1 = s1 + char.ToLower(c1);
+                } 
+                
+                else
+                    s1 = s1 + s[i];
+
+            }
+
+            Put(s1);
+
+        }
+    }
+}

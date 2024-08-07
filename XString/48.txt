@@ -1,0 +1,43 @@
+// File: "XString48"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString48");
+            string s;
+            char c;
+            s = GetString();
+            s=s.Insert(0, " ");
+            s = s.Insert(s.Length, " ");
+            for (int i=1;i<s.Length;i++)
+            {
+                if(s[i-1]==' ' && s[i]>='A' && s[i]<='Z')
+                {
+                    c = s[i];                
+                    for(int n=i+1;s[n]>='A' && s[n]<='Z' && s[n]!=' ';n++)
+                    {
+                        if(s[n]==c)
+                        {
+                            s = s.Remove(n, 1);
+                            s = s.Insert(n, ".");
+                        }
+                            
+                    }
+
+                }
+            }
+            s = s.Remove(0, 1);
+            s = s.Remove(s.Length-1,1);
+            Put(s);
+
+        }
+    }
+}

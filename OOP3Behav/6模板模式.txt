@@ -1,0 +1,215 @@
+// File: "OOP3Behav6"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class AbstractComparable
+        {
+            public abstract int CompareTo(AbstractComparable other);
+
+            // Implement the IndexMax, LastIndexMax, IndexMin
+            //   and LastIndexMin static methods
+            public static int IndexMax(List<AbstractComparable> L)
+            {
+                int num = 0;
+                int count = 0;
+                var max = L[0];
+                foreach (var item in L)
+                {
+                    if (item.CompareTo(max) > 0)
+                    {
+                        num = count;
+                        max= item;
+                    }
+                    count++;
+                }
+                return num;
+            }
+            public static int LastIndexMax(List<AbstractComparable> L)
+            {
+                int num = 0;
+                int count = 0;
+                var max= L[0];
+                foreach(var item in L)
+                {
+                    if (item.CompareTo(max) >=0)
+                    {
+                        num = count;
+                        max = item;
+                    }
+                    count++;
+                }
+                return num;
+            }
+            public static int IndexMin(List<AbstractComparable> L)
+            {
+                int num = 0;
+                int count = 0;
+                var min = L[0];
+                foreach (var item in L)
+                {
+                    if (item.CompareTo(min)< 0)
+                    {
+                        num = count;
+                        min = item;
+                    }
+                    count++;
+                }
+                return num;
+            }
+            public static int LastIndexMin(List<AbstractComparable> L)
+            {
+                int num = 0;
+                int count = 0;
+                var min = L[0];
+                foreach (var item in L)
+                {
+                    if (item.CompareTo(min) <=0)
+                    {
+                        num = count;
+                        min = item;
+                    }
+                    count++;
+                }
+                return num;
+            }
+        }
+
+        // Implement the NumberComparable, LengthComparable
+        //   and TextComparable descendant classes
+
+        public class NumberComparable:AbstractComparable
+        {
+            string s;
+            int key;
+            public NumberComparable(string s)
+            {
+                int k = 0;
+                if(s.Length==0)
+                {
+                    key = 0;
+                }
+                else
+                {
+                    if (s[0] == '-')
+                    {
+                        k++;
+                    }
+                    for (int i = 0; i < s.Length; i++)
+                    {
+                        if (s[i] >= '0' && s[i] <= '9')
+                        {
+                            k++;
+                        }
+                    }
+
+                    if (k == s.Length)
+                        key = int.Parse(s);
+                    else
+                        key = 0;
+
+                }
+        
+            }
+            public override int CompareTo(AbstractComparable other)
+            {
+                NumberComparable cmp = (NumberComparable)other;//向下转型：把父类对象转为子类对象
+                if (this.key > cmp.key)
+                    return 1;
+                else if (this.key < cmp.key)
+                    return -1;
+                else
+                    return 0;
+            }
+        }
+
+        public class LengthComparable:AbstractComparable
+        {
+            string s;
+            int key;
+            public LengthComparable(string s)
+            {
+                key = s.Length;
+            }
+            public override int CompareTo(AbstractComparable other)
+            {
+                LengthComparable cmp = (LengthComparable)other;  //向下转型：把父类对象转为子类对象
+                if (this.key > cmp.key)
+                    return 1;
+                else if (this.key < cmp.key)
+                    return -1;
+                else
+                    return 0;
+            }
+        }
+        public class TextComparable:AbstractComparable
+        {
+            string s;
+            string key;
+            public TextComparable(string s)
+            {
+                key = s;
+            }
+            public override int CompareTo(AbstractComparable other)
+            {
+                TextComparable cmp = (TextComparable)other;//向下转型：把父类对象转为子类对象
+                if (String.CompareOrdinal(this.key, cmp.key) > 0)
+                    return 1;
+                else if (String.CompareOrdinal(this.key, cmp.key) < 0)
+                    return -1;
+                else
+                    return 0;
+
+            }
+        }
+        public static void Solve()
+        {
+            Task("OOP3Behav6");
+            int N;
+            N = GetInt();
+            int K;
+            K = GetInt();
+            string num;
+            string s;
+            for (int i = 0; i < K; i++)
+            {
+                num = GetString();
+                var L = new List<AbstractComparable>();
+
+                for (int j = 0; j < N; j++)
+                {
+                    s = GetString();
+                    AbstractComparable tmp;
+                    if (num[0] == 'N')
+                    {
+                        tmp = new NumberComparable(s);
+                        L.Add(tmp);
+                    }
+                    else if (num[0] == 'L')
+                    {
+                        tmp = new LengthComparable(s);
+                        L.Add(tmp);
+                    }
+                    else
+                    {
+                        tmp = new TextComparable(s);
+                        L.Add(tmp);
+                    }
+
+                }
+                Put(AbstractComparable.IndexMax(L));
+                Put(AbstractComparable.LastIndexMax(L));
+                Put(AbstractComparable.IndexMin(L));
+                Put(AbstractComparable.LastIndexMin(L));
+                
+            }
+
+        }
+    }
+}

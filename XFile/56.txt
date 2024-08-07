@@ -1,0 +1,62 @@
+// File: "XFile56"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XFile56");
+            string s, s1;
+            int N;
+            int m;
+            int x;
+            s = GetString();
+            N = GetInt();
+            s1 = GetString();
+
+            FileStream f1 = new FileStream(s1, FileMode.OpenOrCreate, FileAccess.Read);
+            FileStream f2 = new FileStream(s, FileMode.OpenOrCreate, FileAccess.Write);
+
+            BinaryReader b1 = new BinaryReader(f1);
+            BinaryWriter b2 = new BinaryWriter(f2);
+            for (int k = 1; k < N; k++)
+            {
+                if (b1.PeekChar()<0)
+                {
+                    f1.Close();
+                    f2.Close();
+                    return;
+                }
+                x = b1.ReadInt32();
+                m = x;
+                for(int i=0;i<m;i++)
+                {
+                    x = b1.ReadInt32();
+                }
+            }
+            if(b1.PeekChar()<0)
+            {
+                f1.Close();
+                f2.Close();
+                return;
+            }
+            x = b1.ReadInt32();
+            m = x;
+            for(int i=0;i<m;i++)
+            {
+                x = b1.ReadInt32();
+                b2.Write(x);
+            }
+            f1.Close();
+            f2.Close();
+
+        }
+    }
+}

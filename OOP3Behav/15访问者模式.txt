@@ -1,0 +1,234 @@
+// File: "OOP3Behav15"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Element
+        {
+            public abstract void Accept(Visitor v);
+        }
+
+        public class ConcreteElementA : Element
+        {
+            // Add required fields and methods
+            int data;
+            public ConcreteElementA(int data)
+            {
+                this.data = data;
+            }
+            public int GetData()
+            {
+                return data;
+            }
+            public void SetData(int newData)
+            {
+                data = newData;
+            }
+            public override void Accept(Visitor v)
+            {
+                // Implement the method
+                v.VisitConcreteElementA(this);
+            }
+        }
+
+        public class ConcreteElementB : Element
+        {
+            // Add required fields and methods
+            string data;
+            public ConcreteElementB(string data)
+            {
+                this.data=data;
+            }
+            public string GetData()
+            {
+                return data;
+            }
+            public void SetData(string newData)
+            {
+                data=newData;
+            }
+            public override void Accept(Visitor v)
+            {
+                // Implement the method
+                v.VisitConcreteElementB(this);
+            }
+        }
+
+        public class ConcreteElementC : Element
+        {
+            // Add required fields and methods
+            double data;
+            public ConcreteElementC(double data)
+            {
+                this.data=data;
+            }
+            public double GetData()
+            {
+                return data;
+            }
+            public void SetData(double newData)
+            {
+                data = newData;
+            }
+            public override void Accept(Visitor v)
+            {
+                // Implement the method
+                v.VisitConcreteElementC(this);
+            }
+        }
+
+        public class ObjectStructure
+        {
+            Element[] struc;
+            public ObjectStructure(Element[] struc)
+            {
+                // Implement the constructor
+                this.struc = struc;
+            }
+            public void Accept(Visitor v)
+            {
+                foreach (var e in struc)
+                    e.Accept(v);
+            }
+        }
+
+        public abstract class Visitor
+        {
+            public abstract void VisitConcreteElementA(ConcreteElementA e);
+            public abstract void VisitConcreteElementB(ConcreteElementB e);
+            public abstract void VisitConcreteElementC(ConcreteElementC e);
+        }
+
+        // Implement the ConcreteVisitor1, ConcreteVisitor2
+        //   and ConcreteVisitor3 descendant classes
+        public class ConcreteVisitor1:Visitor
+        {
+            public override void VisitConcreteElementA(ConcreteElementA e)
+            {
+                Put(e.GetData());
+            }
+            public override void VisitConcreteElementB(ConcreteElementB e)
+            {
+                Put(e.GetData());
+            }
+            public override void VisitConcreteElementC(ConcreteElementC e)
+            {
+                Put(e.GetData());
+            }
+        }
+        public class ConcreteVisitor2:Visitor
+        {
+            public override void VisitConcreteElementA(ConcreteElementA e)
+            {
+                e.SetData(-e.GetData());
+            }
+            public override void VisitConcreteElementB(ConcreteElementB e)
+            {
+                string str = e.GetData();
+                string s="";
+                for(int i = str.Length-1; i >=0; i--)
+                {
+                    s += str[i];
+                }
+                e.SetData(s);
+            }
+            public override void VisitConcreteElementC(ConcreteElementC e)
+            {
+                e.SetData(1/e.GetData());
+                
+            }
+        }
+        public class ConcreteVisitor3:Visitor
+        {
+            int resultA;
+            string resultB;
+            double resultC;
+            public ConcreteVisitor3()
+            {
+                resultA = 0;
+                resultB = "";
+                resultC = 1.0;
+            }
+            public override void VisitConcreteElementA(ConcreteElementA e)
+            {
+                resultA=resultA+e.GetData();
+            }
+            public override void VisitConcreteElementB(ConcreteElementB e)
+            {
+                resultB=resultB+e.GetData();
+            }
+            public override void VisitConcreteElementC(ConcreteElementC e)
+            {
+                resultC=resultC*e.GetData();
+            }
+            public int GetResultA()
+            {
+                return resultA;
+            }
+            public string GetResultB()
+            {
+                return resultB;
+            }
+            public double GetResultC()
+            {
+                return resultC;
+            }
+        }
+
+
+        public static void Solve()
+        {
+            Task("OOP3Behav15");
+            int N;
+            N = GetInt();
+            Element [] elements = new Element [N];
+
+            for(int i = 0; i < N; i++)
+            {
+                char c;
+                c=GetChar();
+
+                if(c =='A')
+                {
+                    int x;
+                    x=GetInt();
+                    ConcreteElementA A = new ConcreteElementA(x);
+                    elements[i] = A;
+                }
+                else if(c =='B')
+                {
+                    string s;
+                    s=GetString();
+                    ConcreteElementB B = new ConcreteElementB(s);
+                    elements[i] = B;
+                }
+                else
+                {
+                    double d;
+                    d=GetDouble();
+                    ConcreteElementC C = new ConcreteElementC(d);
+                    elements[i] = C;
+                }
+            }
+            var struc = new ObjectStructure(elements);
+            var E1 = new ConcreteVisitor1();
+            var E2 = new ConcreteVisitor2();
+            var E3 = new ConcreteVisitor3();
+
+            struc.Accept(E1);
+            struc.Accept(E2);
+            struc.Accept(E1);
+            struc.Accept(E3);
+
+            Put(E3.GetResultA());
+            Put(E3.GetResultB());
+            Put(E3.GetResultC());
+        }
+    }
+}

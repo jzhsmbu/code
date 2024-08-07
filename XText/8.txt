@@ -1,0 +1,34 @@
+// File: "XText8"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XText8");
+            string s1, s2;
+            s1 = GetString();
+            s2 = GetString();
+            string s;
+
+            StreamReader r1 = new StreamReader(s1);
+            StreamWriter r2 = new StreamWriter(s2,true);
+
+            s = r1.ReadToEnd();
+            r2.Write(s);
+            r1.Close();
+            r2.Close();
+            File.Delete(s1);
+            File.Move(s2, s1);
+        }
+        
+        
+    }
+}

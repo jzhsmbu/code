@@ -1,0 +1,30 @@
+// File: "XString12"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString12");
+            string s;
+            int N;
+            s = GetString();
+            N = GetInt();
+            string s1 = new string('*', N);
+            string s2 = s[0].ToString();
+
+            for (int i=1;i<s.Length;i++)
+            {
+                s2 += s1 + s[i];
+            }
+            Put(s2);
+         
+        }
+    }
+}

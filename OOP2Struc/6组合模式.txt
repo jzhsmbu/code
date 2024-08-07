@@ -1,0 +1,121 @@
+// File: "OOP2Struc6"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Device
+        {
+            public virtual void Add(Device d) { }
+            public abstract string GetName();
+            public abstract int GetTotalPrice();
+        }
+
+        // Implement the SimpleDevice
+        //   and CompoundDevice descendant classes
+        public class SimpleDevice : Device
+        {
+            string name;
+            int price;
+            public SimpleDevice(string name, int price)
+            {
+                this.name = name;
+                this.price = price;
+            }
+            public override string GetName()
+            {
+                return this.name;
+            }
+            public override int GetTotalPrice()
+            {
+                return this.price;
+            }
+        }
+
+        public class CompoundDevice : Device
+        {
+            Device d;
+            string name;
+            int price;
+            List<Device> devices=new List<Device>();
+            public CompoundDevice(string name,int price)
+            {
+                this.name = name;
+                this.price = price;
+            }
+            public override void Add(Device d)
+            {;
+                devices.Add(d);
+            }
+            public override string GetName()
+            {
+                return this.name;
+            }
+            public override int GetTotalPrice()
+            {
+                if(devices.Count == 0)
+                {
+                    return this.price;
+                }
+                else
+                {
+                    int ncount = this.price;
+                    foreach(Device d in devices)
+                    {
+                        ncount+=d.GetTotalPrice();
+                    }
+                    return ncount;
+                }
+            }
+
+        }
+
+        public static void Solve()
+        {
+            Task("OOP2Struc6");
+            int N;
+            N = GetInt();
+            var AD = new Device[N];
+            string name;
+            int price;
+
+            for (int i = 0; i < N; i++)
+            {
+                name = GetString();
+                price = GetInt();
+                if (name[0] >= 'a' && name[0] <= 'z')
+                {
+                    AD[i] = new SimpleDevice(name, price);
+                }
+                else
+                {
+                    AD[i] = new CompoundDevice(name, price);
+                }
+            }
+        
+
+            for (int i = 0; i < N; i++)
+            {
+                int K;
+                K = GetInt();
+                if (K != -1)
+                {
+                    AD[K].Add(AD[i]);
+                }
+            }
+
+            for (int i = 0; i < N; i++)
+            {
+                Put(AD[i].GetName());
+                Put(AD[i].GetTotalPrice());
+            }
+
+        }
+    }
+}
+

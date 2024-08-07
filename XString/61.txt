@@ -1,0 +1,40 @@
+// File: "XString61"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString61");
+            string s;
+            string s1 = "\\";
+            s = GetString();
+            int count1, count2;
+            count1 = s.IndexOf('\\');
+            count2 = s.LastIndexOf('\\');
+            //Show(count1);
+            //Show(count2);
+
+            if(count1==count2)
+            {
+                Put(s1);
+            }
+            else
+            {
+                s = s.Remove(count2, s.Length - count2);
+                int newcount = s.LastIndexOf('\\');
+                //Show(newcount);
+                s = s.Substring(newcount + 1, s.Length - newcount - 1);
+                //Show(s);
+                Put(s);
+            }
+
+        }
+    }
+}

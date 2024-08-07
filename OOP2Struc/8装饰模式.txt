@@ -1,0 +1,143 @@
+// File: "OOP2Struc8"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Function
+        {
+            public abstract string GetName();
+            public abstract int GetValue(int x);
+        }
+
+        //Implement the FX, FDouble, FTriple, FSquare
+        //  and FCube descendant classes
+
+        public class FX : Function
+        {
+            string f;
+            public override string GetName()
+            {
+                return "X";
+            }
+            public override int GetValue(int x)
+            {
+                return x;
+            }
+
+        }
+        public class FDouble:Function
+        {
+            Function mfunc;
+            public FDouble(Function mfunc)
+            {
+                this.mfunc = mfunc;
+            }
+            public override string GetName()
+            {
+                return "2*(" + mfunc.GetName() + ")";
+            }
+            public override int GetValue(int x)
+            {
+                return 2 * mfunc.GetValue(x);
+            }
+        }
+
+        public class FTriple:Function
+        {
+            Function mfunc;
+            public FTriple(Function mfunc)
+            {
+                this.mfunc = mfunc;
+            }
+            public override string GetName()
+            {
+                return "3*(" + mfunc.GetName() + ")";
+            }
+            public override int GetValue(int x)
+            {
+                return 3 * mfunc.GetValue(x);
+            }
+        }
+        public class FSquare:Function
+        {
+            Function mfunc;
+            public FSquare(Function mfunc)
+            {
+                this.mfunc = mfunc;
+            }
+            public override string GetName()
+            {
+                return "(" + mfunc.GetName() + ")"+"^2";
+            }
+            public override int GetValue(int x)
+            {
+                return mfunc.GetValue(x)* mfunc.GetValue(x);
+            }
+        }
+        public class FCube:Function
+        {
+            Function mfunc;
+            public FCube(Function mfunc)
+            {
+                this.mfunc = mfunc;
+            }
+            public override string GetName()
+            {
+                return "(" + mfunc.GetName() + ")" + "^3";
+            }
+            public override int GetValue(int x)
+            {
+                return mfunc.GetValue(x) * mfunc.GetValue(x)* mfunc.GetValue(x);
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP2Struc8");
+            int N;
+            N = GetInt();
+            var elemf = new Function[N];
+            for(int i=0;i<N;i++)
+            {
+                string s;
+                s = GetString();
+                elemf[i] = new FX();
+                for (int j = 0; j < s.Length; j++)
+                {
+                    switch (s[j])
+                    {
+                        case 'D':
+                            elemf[i] = new FDouble(elemf[i]);
+                            break;
+                        case 'T':
+                            elemf[i] = new FTriple(elemf[i]);
+                            break;
+                        case 'S':
+                            elemf[i] = new FSquare(elemf[i]);
+                            break;
+                        case 'C':
+                            elemf[i] = new FCube(elemf[i]);
+                            break;
+                    }
+                }
+            }
+
+            int x1, x2;
+            x1 = GetInt();
+            x2 = GetInt();
+            for(int i=0;i<N;i++)
+            {
+                Put(elemf[i].GetName());
+                Put(elemf[i].GetValue(x1));
+                Put(elemf[i].GetValue(x2));
+            }
+
+        }
+    }
+}

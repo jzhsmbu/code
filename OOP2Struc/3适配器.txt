@@ -1,0 +1,144 @@
+// File: "OOP2Struc3"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public class TextView
+        {
+            // Do not change the implementation of the class
+            int x, y;
+            int width = 1, height = 1;
+            public void GetOrigin(out int x, out int y)
+            {
+                x = this.x;
+                y = this.y;
+            }
+            public void SetOrigin(int x, int y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+            public void GetSize(out int width, out int height)
+            {
+                width = this.width;
+                height = this.height;
+            }
+            public void SetSize(int width, int height)
+            {
+                this.width = width;
+                this.height = height;
+            }
+        }
+
+        public abstract class Shape
+        {
+            public abstract string GetInfo();
+            public abstract void MoveBy(int a, int b);
+        }
+
+        // Implement the RectShape and TextShape descendant classes
+       
+        public class RectShape:Shape
+        {
+            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            public RectShape(int x1,int y1,int x2,int y2)
+            {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+            }
+            public override void MoveBy(int a, int b)
+            {
+                x1 = x1 + a;
+                y1 = y1 + b;
+                x2 = x2 + a;
+                y2 = y2 + b;
+
+            }
+            public override string GetInfo()
+            {
+                return "R" + "(" + this.x1 + "," + this.y1 + ")" +
+                "(" + this.x2 + "," + this.y2 + ")";
+            }
+        }
+
+        public class TextShape:Shape
+        {
+            TextView tview;
+            public TextShape(TextView tview,int x1, int y1, int x2, int y2)
+            {
+                this.tview = tview;
+                this.tview.SetOrigin(x1, y1);
+                this.tview.SetSize(x2, y2);
+            }
+            public override void MoveBy(int a, int b)
+            {
+                int x1, y1;
+                int x2, y2;
+                tview.GetOrigin(out x1, out y1);
+                tview.GetSize(out x2, out y2);
+                x1 = x1 + a;
+                y1 = y1 + b;
+                x2 = x2 + a;
+                y2 = y2 + b;
+                this.tview.SetOrigin(x1, y1);
+                this.tview.SetSize(x2, y2);
+            }
+            public override string GetInfo()
+            {
+                int x1, y1;
+                int x2, y2;
+                tview.GetOrigin(out x1, out y1);
+                tview.GetSize(out x2, out y2);
+                return "T" + "(" + x1 + "," + y1 + ")" +
+                "(" + x2 + "," + y2 + ")";
+            }
+
+        }
+
+        public static void Solve()
+        {
+            Task("OOP2Struc3");
+            int N;
+            N = GetInt();
+            var t = new Shape[N];
+
+            for (int i=0;i<N;i++)
+            {
+                char c;
+                c = GetChar();
+                int x1, y1, x2, y2;
+                x1 = GetInt();
+                y1 = GetInt();
+                x2 = GetInt();
+                y2 = GetInt();
+                
+                if(c=='R')
+                {
+                    t[i] = new RectShape(x1, y1, x2, y2);
+                }
+                else
+                {
+                    t[i] = new TextShape(new TextView(), x1, y1, x2, y2);
+                }
+            }
+
+            int A, B;
+            A = GetInt();
+            B = GetInt();
+            for(int i=0;i<N;i++)
+            {
+                t[i].MoveBy(A, B);
+                //Show(t[i].GetInfo());
+                Put(t[i].GetInfo());              
+            }
+        }
+    }
+}

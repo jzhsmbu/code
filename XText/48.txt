@@ -1,0 +1,63 @@
+// File: "XText48"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XText48");
+            string s1, s2;
+            s1 = GetString();
+            s2 = GetString();
+
+            StreamReader r1 = new StreamReader(s1);
+
+            FileStream f2 = new FileStream(s2, FileMode.OpenOrCreate, FileAccess.Write);
+            BinaryWriter b2 = new BinaryWriter(f2);
+
+
+            string s = "";
+
+            while (!r1.EndOfStream)
+            {
+                string line = r1.ReadLine();
+                line=line.Insert(line.Length, " ");
+                for (int i = 0; i < line.Length; i++)
+                {
+                    if (line[i] != ' ')
+                    {
+                        s = s + line[i];
+                    }
+                    else
+                    {
+                        if (s != "")
+                        {
+                            double num = double.Parse(s);
+                            if (Math.Ceiling(num) == num)
+                            {
+                                int n = (int)num;
+                                //Show(n);
+                                b2.Write(n);
+                            }
+                             
+                            s = "";
+                        }
+                    }
+                }
+             
+                
+            }
+     
+            r1.Close();
+            b2.Close();
+        }
+    }
+}

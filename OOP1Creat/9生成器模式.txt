@@ -1,0 +1,119 @@
+// File: "OOP1Creat9"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Builder
+        {
+            public virtual void BuildStart() {}
+            public virtual void BuildPartA() {}
+            public virtual void BuildPartB() {}
+            public virtual void BuildPartC() {}
+            public abstract string GetResult();
+        }
+
+        // Implement the ConcreteBuilder1
+        //   and ConcreteBuilder2 descendant classes
+
+        public class ConcreteBuilder1:Builder
+        {
+            string product = "";
+            public override void BuildStart()
+            {
+                this.product = "";
+            }
+            public override void BuildPartA()
+            {
+                product += "-1-";
+            }
+            public override void BuildPartB()
+            {
+                product += "-2-";
+            }
+            public override void BuildPartC()
+            {
+                product += "-3-";
+            }
+            public override string GetResult()
+            {
+                return this.product;
+            }
+        }
+        public class ConcreteBuilder2 : Builder
+        {
+            string product = "";
+            public override void BuildStart()
+            {
+                this.product = "";
+            }
+            public override void BuildPartA()
+            {
+                product += "=*=";
+            }
+            public override void BuildPartB()
+            {
+                product += "=**=";
+            }
+            public override void BuildPartC()
+            {
+                product += "=***=";
+            }
+            public override string GetResult()
+            {
+                return this.product;
+            }
+        }
+
+
+        public class Director
+        {
+            Builder b;
+            public Director(Builder b)
+            {
+                this.b = b;
+            }
+            public string GetResult()
+            {
+                return b.GetResult();
+            }
+            public void Construct(string templat)
+            {
+                // Implement the method
+                b.BuildStart();
+                for (int i = 0; i < templat.Length; i++)
+                {
+                    if (templat[i] == 'A')
+                        b.BuildPartA();
+                    else if (templat[i] == 'B')
+                        b.BuildPartB();
+                    else if (templat[i] == 'C')
+                        b.BuildPartC();
+                    else
+                        ;
+                }
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP1Creat9");
+            for (int i = 0; i < 5; i++)
+            {
+                string templat;
+                templat= GetString();
+                var D1 = new Director(new ConcreteBuilder1());
+                var D2 = new Director(new ConcreteBuilder2());
+                D1.Construct(templat);
+                D2.Construct(templat);
+                Put(D1.GetResult());
+                Put(D2.GetResult());
+            }
+        }
+    }
+}

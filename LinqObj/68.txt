@@ -1,0 +1,46 @@
+// File: "LinqObj68"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqObj68");
+            string[] subjects = { "Algebra", "Geometry", "Physics" };
+            var res = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        name = s[2] + " " + s[3],
+                        subj = s[4],
+                        mark = int.Parse(s[1]),
+                        num = int.Parse(s[0])
+                    };
+                })
+                .GroupBy(e => e.name, (k, ee) => new
+                {
+                    name = k,
+                    mark = ee.Select(c => c.mark),
+                    num = ee.Select(c => c.num)
+                })
+                .Where(e => e.mark.Min() == 4)
+                .OrderBy(e => e.mark.Where(c => c == 4).Count())
+                .ThenBy(e => e.name)
+                .Select(e => e.mark.Where(c => c == 4).Count() + " " + e.name + " " + e.num.First())
+                .DefaultIfEmpty("Required students not found")
+                .Show();
+
+            File.WriteAllLines(GetString(), res.ToArray());
+
+        }
+    }
+}

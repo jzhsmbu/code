@@ -1,0 +1,47 @@
+// File: "XFile38"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XFile38");
+            string s1;
+            string s2 = "XFile38";
+            int k = 1;
+            int x;
+            s1 = GetString();
+
+            FileStream f1 = new FileStream(s1, FileMode.OpenOrCreate, FileAccess.Read);
+            FileStream f2 = new FileStream(s2, FileMode.OpenOrCreate, FileAccess.Write);
+
+            BinaryReader b1 = new BinaryReader(f1);
+            BinaryWriter b2 = new BinaryWriter(f2);
+            while (b1.PeekChar()>=0)
+            {
+                x = b1.ReadInt32();
+                if(k%2==1)
+                {
+                    b2.Write(x);
+                    b2.Write(x);
+                }
+                else
+                {
+                    b2.Write(x);
+                }
+                k++;
+            }
+            f1.Close();
+            f2.Close();
+            File.Delete(s1);
+            File.Move(s2, s1);
+        }
+    }
+}

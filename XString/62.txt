@@ -1,0 +1,45 @@
+// File: "XString62"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XString62");
+            string s;
+            string s1 = "";
+            char c;
+            int m;
+            s = GetString();
+
+            for(int i=0;i<s.Length;i++)
+            {
+                if(s[i]=='z' || s[i]=='Z')
+                {
+                    m = (int)s[i]-26;
+                    c = (char)m;
+                    s1 = s1 + c;
+
+                }
+                else if((s[i]>='a' && s[i]<'z') || (s[i]>='A' && s[i]<'Z'))
+                {
+                    m = (int)s[i] + 1;
+                    c = (char)m;
+                    s1 = s1 + c;
+                }
+                else
+                {
+                    c = s[i];
+                    s1 = s1 + c;
+                }
+            }
+            Put(s1);
+        }
+    }
+}

@@ -1,0 +1,50 @@
+// File: "LinqXml74"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using System.Xml.Linq;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqXml74");
+            string name = GetString();
+            XDocument d = XDocument.Load(name);
+            XNamespace ns = d.Root.Name.Namespace;
+
+            var a = d.Root.Elements()
+                .Select(e =>
+                {
+                    string[] s = e.Element(ns + "company").Attribute("station").Value.Split('_');
+                    return new
+                    {
+                        company = s[2],
+                        street = s[0] + "_" + s[1],
+                        brand = e.Name.LocalName,
+                        price = int.Parse(e.Element(ns + "company").Attribute("price").Value)
+                    };
+                }).Show();
+
+            var street = a.Select(e => e.street).Distinct().OrderBy(e => e);
+            string[] brand = { "brand92", "brand95", "brand98" };
+
+            d.Root.ReplaceNodes(a.OrderBy(e => e.company)
+                .GroupBy(e => e.company,
+                (k, ee) => new XElement(ns + k,
+                street.GroupJoin(ee, e1 => e1, e2 => e2.street,
+                (e1, ee2) => new XElement(ns + e1,
+                new XAttribute(brand[0], ee2.Where(c => c.brand == brand[0]).Select(c => c.price).DefaultIfEmpty().First()),
+                new XAttribute(brand[1], ee2.Where(c => c.brand == brand[1]).Select(c => c.price).DefaultIfEmpty().First()),
+                new XAttribute(brand[2], ee2.Where(c => c.brand == brand[2]).Select(c => c.price).DefaultIfEmpty().First()))))));
+
+
+            d.Save(name);
+        }
+    }
+}

@@ -1,0 +1,192 @@
+// File: "OOP3Behav11"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class State
+        {
+            public abstract void InsertCoin();
+            public abstract void GetBall();
+            public abstract void ReturnCoin();
+            public abstract void AddBall();
+        }
+
+        // Implement the ReadyState, HasPayedState
+        //   and NoBallState descendant classes
+        public class ReadyState:State
+        {
+            BallMachine M;
+            public ReadyState(BallMachine M)
+            {
+                this.M = M;
+            }
+            public override void InsertCoin()
+            {
+                Put("Coin is inserted");
+                M.SetState(M.GetHasPayedState());
+            }
+            public override void GetBall()
+            {
+                Put("You need to pay first");
+            }
+            public override void ReturnCoin()
+            {
+                Put("You need to pay first");
+            }
+            public override void AddBall(){}
+        }
+        public class HasPayedState:State
+        {
+            BallMachine M;
+            public HasPayedState(BallMachine M)
+            {
+                this.M = M;
+            }
+            public override void InsertCoin()
+            {
+                Put("You have already paid");
+            }
+            public override void GetBall()
+            {
+                Put("Take your ball");
+                if(M.DecreaseBallCount()>0)
+                {
+                    M.SetState(M.GetReadyState());
+                }
+                else
+                {
+                    M.SetState(M.GetNoBallState());
+                }
+            }
+            public override void ReturnCoin()
+            {
+                Put("Take your coin");
+                M.SetState(M.GetReadyState());
+            }
+            public override void AddBall(){}
+        }
+        public class NoBallState:State
+        {
+            BallMachine M;
+            public NoBallState(BallMachine M)
+            {
+                this.M = M;
+            }
+            public override void InsertCoin()
+            {
+                Put("Sorry, balls are over");
+            }
+            public override void GetBall()
+            {
+                Put("Sorry, balls are over");
+            }
+            public override void ReturnCoin()
+            {
+                Put("Sorry, balls are over");
+            }
+            public override void AddBall()
+            {
+                M.SetState(M.GetReadyState());
+            }
+        }
+
+        // Implement the BallMachine class
+        public class BallMachine
+        {
+            int ballCount;
+            State ready;
+            State hasPayed;
+            State noBall;
+            State currentState;
+            public BallMachine(int ballCount, State ready, State hasPayed, State noBall, State currentState)
+            {
+                this.ballCount = 3;
+                this.ready = new ReadyState(this);
+                this.hasPayed = new HasPayedState(this);
+                this.noBall = new NoBallState(this);
+                this.currentState =new ReadyState(this);
+            }
+            public void InsertCoin()
+            {
+                currentState.InsertCoin();
+            }
+            public void GetBall()
+            {
+                currentState.GetBall();
+            }
+            public void ReturnCoin()
+            {
+                currentState.ReturnCoin();
+            }
+            public void AddBall()
+            {
+                currentState.AddBall();
+                Put("Ball is added");
+                ballCount++;
+            }
+            public int DecreaseBallCount()
+            {
+                ballCount--;
+                return ballCount;
+            }
+            public void SetState(State newState)
+            {
+                currentState = newState;
+            }
+            public State GetReadyState()
+            {
+                return ready;
+            }
+            public State GetHasPayedState()
+            {
+                return hasPayed;
+            }
+            public State GetNoBallState()
+            {
+                return noBall;
+            }
+
+        }
+
+
+        public static void Solve()
+        {
+            Task("OOP3Behav11");
+            string s;
+            s = GetString();
+            int N=s.Length;
+            int ballCount=3;
+            State ready=null;
+            State hasPayed=null;
+            State noBall=null;
+            State currentState=null;
+            BallMachine M = new BallMachine(ballCount, ready, hasPayed, noBall, currentState);
+
+            for (int i = 0; i < N; i++)
+            {
+                if (s[i] == 'I')
+                {
+                    M.InsertCoin();
+                }
+                else if(s[i] == 'G')
+                {
+                    M.GetBall();
+                }
+                else if(s[i] == 'R')
+                {
+                    M.ReturnCoin();
+                }
+                else
+                {
+                    M.AddBall();
+                }
+            }
+        }
+    }
+}

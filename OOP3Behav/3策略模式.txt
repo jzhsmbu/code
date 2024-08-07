@@ -1,0 +1,130 @@
+// File: "OOP3Behav3"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public abstract class Strategy
+        {
+            public abstract string Algorithm(string info);
+        }
+
+        // Implement the ConcreteStrategyA, ConcreteStrategyB
+        //   and ConcreteStrategyC descendant classes
+
+        public class ConcreteStrategyA:Strategy
+        {
+            string info;
+            public ConcreteStrategyA(){}
+            public override string Algorithm(string info)
+            {
+                string s1 = "A";
+                return info + s1;
+
+            }
+        }
+
+        public class ConcreteStrategyB:Strategy
+        {
+            string info;
+            public ConcreteStrategyB() { }
+            public override string Algorithm(string info)
+            {
+                string s1 = "B";
+                return info + s1;
+
+            }
+        }
+        public class ConcreteStrategyC : Strategy
+        {
+            string info;
+            public ConcreteStrategyC() { }
+            public override string Algorithm(string info)
+            {
+                string s1 = "C";
+                return info + s1;
+
+            }
+        }
+
+        public abstract class Context
+        {
+            protected Strategy st;
+            public void SetStrategy(Strategy st)
+            {
+                this.st = st;
+            }
+            public abstract string RunAlgorithm();
+        }
+
+        // Implement the Context1 and Context2 descendant classes
+
+        public class Context1 : Context
+        {
+            public Context1()
+            {
+                var A = new ConcreteStrategyA();
+                this.st = A;
+            }
+            public override string RunAlgorithm()
+            {
+                string info = "1";
+                return st.Algorithm(info);
+            }
+        }
+
+        public class Context2: Context
+        {
+            public Context2()
+            {
+                var B = new ConcreteStrategyB();
+                this.st = B;
+            }
+            public override string RunAlgorithm()
+            {
+                string info = "2";
+                return st.Algorithm(info);
+            }
+        }
+
+        public static void Solve()
+        {
+            Task("OOP3Behav3");
+            string s;
+            s = GetString();
+            int N = s.Length;
+            var ctxt = new Context[N];
+
+            for(int i = 0; i < N; i++)
+            {
+                if (s[i] == '1')
+                {
+                    ctxt[i] = new Context1();
+                }
+                else
+                {
+                    ctxt[i] = new Context2();
+                }
+            }
+
+            int K;
+            K = GetInt();
+            int ind;
+            for(int i= 0; i < K; i++)
+            {
+                ind = GetInt();
+                ctxt[ind].SetStrategy(new ConcreteStrategyC());
+            }
+            for(int i= 0; i < N; i++)
+            {
+                Put(ctxt[i].RunAlgorithm());
+            }
+
+        }
+    }
+}

@@ -1,0 +1,107 @@
+// File: "LinqObj94"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("LinqObj94");
+            var A = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        year = int.Parse(s[0]),
+                        people = int.Parse(s[1]),
+                        street = s[2]
+                    };
+                });
+
+            var B = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        code = s[0],
+                        cat = s[1],
+                        country = s[2]
+                    };
+                });
+
+            var C = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        people = int.Parse(s[0]),
+                        shop = s[1],
+                        discount = int.Parse(s[2])
+                    };
+                });
+
+            var E = File.ReadLines(GetString())
+                .Select(e =>
+                {
+                    string[] s = e.Split(' ');
+                    return new
+                    {
+                        shop = s[0],
+                        people = int.Parse(s[1]),
+                        code = s[2]
+                    };
+                });
+
+            var res = A.Join(E, e1 => e1.people, e2 => e2.people, (e1, e2) => new
+            {
+                e1.year,
+                e1.street,
+                e2.shop,
+                e2.code,
+                e2.people
+            })
+                .Join(B, e1 => e1.code, e2 => e2.code, (e1, e2) => new
+                {
+                    e1.year,
+                    e1.street,
+                    e1.shop,
+                    e1.code,
+                    e1.people,
+                    e2.cat,
+                    e2.country
+                })
+                .GroupJoin(C, e1 => e1.people + " " + e1.shop, e2 => e2.people + " " + e2.shop, (e1, ee2) => new
+                {
+                    e1.year,
+                    e1.street,
+                    e1.shop,
+                    e1.people,
+                    e1.cat,
+                    discount = ee2.Select(e => e.discount)
+                })
+                .OrderBy(e => e.shop)
+                .ThenBy(e => e.cat)
+                .GroupBy(e => e.shop + " " + e.cat,
+                (k, ee) => new
+                {
+                    shop_cat = k,
+                    year = ee.Select(e => e.year).Min(),
+                    num = ee.Where(e => e.discount.Count()>0).Where(e => e.year == ee.Select(c => c.year).Min()).Count()
+                })
+                .Select(e => e.shop_cat + " " + e.year + " " + e.num)
+                .Show();
+
+           File.WriteAllLines(GetString(), res.ToArray());
+
+        }
+    }
+}

@@ -1,0 +1,70 @@
+// File: "XText51"
+using PT4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+namespace PT4Tasks
+{
+    public class MyTask : PT
+    {
+        public static void Solve()
+        {
+            Task("XText51");
+            string s1, s2,s3,s4;
+            s1 = GetString();
+            s2 = GetString();
+            s3 = GetString();
+            s4 = GetString();
+
+            StreamReader r1 = new StreamReader(s1);
+
+            FileStream f2 = new FileStream(s2, FileMode.OpenOrCreate, FileAccess.Write);
+            FileStream f3 = new FileStream(s3, FileMode.OpenOrCreate, FileAccess.Write);
+            FileStream f4 = new FileStream(s4, FileMode.OpenOrCreate, FileAccess.Write);
+            BinaryWriter b2 = new BinaryWriter(f2);
+            BinaryWriter b3 = new BinaryWriter(f3);
+            BinaryWriter b4 = new BinaryWriter(f4);
+
+            string s = "";
+
+            while (!r1.EndOfStream)
+            {
+                string line = r1.ReadLine();
+                line = line.Insert(line.Length, " ");
+                int count = 1;
+                for (int i = 0; i < line.Length; i++)
+                {
+                    if (line[i] != ' ')
+                    {
+                        s = s + line[i];
+                    }
+                    else
+                    {
+                        if (s != "")
+                        {
+                            double num = double.Parse(s);
+                            if (count == 1)
+                                b2.Write(num);
+                            else if (count == 2)
+                                b3.Write(num);
+                            else
+                                b4.Write(num);
+                            count++;
+                            s = "";
+                        }
+                    }
+                }
+
+            }
+
+            r1.Close();
+            b2.Close();
+            b3.Close();
+            b4.Close();
+
+
+        }
+    }
+}
